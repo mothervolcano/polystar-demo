@@ -1,4 +1,4 @@
-export function convertPathToSVG( path: any ) {
+export function convertPathToSVG( path: any, scale: number = 1 ) {
 
   let output = "";
 
@@ -7,12 +7,12 @@ export function convertPathToSVG( path: any ) {
     
     if ( c.isFirst() )
     {
-      output += "M " + c.point1.x + " " + c.point1.y;
+      output += "M " + c.point1.x * scale + " " + c.point1.y * scale;
     }
 
     if ( c.isStraight() )
     {
-      output += " L " + c.point2.x + " " + c.point2.y;
+      output += " L " + c.point2.x * scale + " " + c.point2.y * scale;
 
     } else {
 

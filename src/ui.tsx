@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 
 import {
 	Container,
@@ -16,6 +16,7 @@ import {
 	AspectRatio,
 	Group,
     ColorPicker,
+    Button,
 } from "@mantine/core";
 
 // .......................................................
@@ -26,6 +27,15 @@ import useModel from "./hooks/useModel";
 import PaperStage from "./components/PaperStage";
 
 import { reset, initModel, configure, draw, extractPath } from "./stage";
+import Gallery from "./components/Gallery";
+import { convertPathToSVG } from "./polystar/util/pathUtils";
+
+
+interface savedShape {
+
+	timestamp: string | null;
+	svg: string | null;
+}
 
 // --------------------------------------------------------------
 // HELPERS
@@ -52,6 +62,10 @@ const UI = () => {
 	const [hasFill, setHasFill] = useState<boolean>(true);
 	const [artColor, setArtColor] = useState("10FF0C");
 	const [scaleCtrl, setScaleCtrl] = useState(3);
+
+	const [shapeCollection, setShapeCollection] = useState<savedShape[]>(new Array(6).fill({timestamp: null, svg: null}))
+
+	const [svgTest, setSvgTest] = useState(null);
 
 	// -------------------------------------------------------------------------------------------------------
 	// HOOKS
@@ -94,6 +108,7 @@ const UI = () => {
 
 		reset();
 		draw(params, scaleCtrl);
+
 	}, [paramsForConsole]);
 
 	// ......................................................
@@ -126,6 +141,26 @@ const UI = () => {
 	const handleParamCtrlInputForModel = (updatedParams: any) => {
 		setParamsForConsole(updatedParams);
 	};
+
+
+	const saveShape = (event: SyntheticEvent) => {
+
+		event.preventDefault();
+
+		const currentShapeSvgData = convertPathToSVG(extractPath(), 1);
+
+		const shapeToSave = {
+
+			timestamp: null,
+			svg: currentShapeSvgData
+		}
+
+		const collection = shapeCollection.slice();
+		const nextSlot = collection.findIndex( item => item.svg === null );
+		collection[nextSlot] = shapeToSave;
+
+		setShapeCollection(collection)
+	}
 
 	// -------------------------------------------------------------------------------------------------------
 	// BLOCKS
@@ -186,6 +221,7 @@ const UI = () => {
 								value={artColor}
 								onChange={setArtColor}
 							/>
+							<Button variant="filled" onClick={saveShape}>Save</Button>
 						</Stack>
 					</Grid.Col>
 					<Grid.Col span={10}>
@@ -222,68 +258,7 @@ const UI = () => {
 									width: "100%"
 								}}
 							>
-								<Group grow gap={0}>
-									<div
-										style={{
-											borderRight: "1px solid black",
-											borderTop: "1px solid black",
-										}}
-									>
-										<AspectRatio ratio={1 / 1}>
-											<Container>slot 1</Container>
-										</AspectRatio>
-									</div>
-									<div
-										style={{
-											borderRight: "1px solid black",
-											borderTop: "1px solid black",
-										}}
-									>
-										<AspectRatio ratio={1/1}>
-											<Container>slot 2</Container>
-										</AspectRatio>
-									</div>
-									<div
-										style={{
-											borderRight: "1px solid black",
-											borderTop: "1px solid black",
-										}}
-									>
-										<AspectRatio ratio={1/1}>
-											<Container>slot 3</Container>
-										</AspectRatio>
-									</div>
-									<div
-										style={{
-											borderRight: "1px solid black",
-											borderTop: "1px solid black",
-										}}
-									>
-										<AspectRatio ratio={1/1}>
-											<Container>slot 4</Container>
-										</AspectRatio>
-									</div>
-									<div
-										style={{
-											borderRight: "1px solid black",
-											borderTop: "1px solid black",
-										}}
-									>
-										<AspectRatio ratio={1/1}>
-											<Container>slot 5</Container>
-										</AspectRatio>
-									</div>
-									<div
-										style={{
-											borderRight: "1px solid black",
-											borderTop: "1px solid black",
-										}}
-									>
-										<AspectRatio ratio={1/1}>
-											<Container>slot 6</Container>
-										</AspectRatio>
-									</div>
-								</Group>
+								<Gallery collection={shapeCollection} />
 							</div>
 							<PaperStage onPaperLoad={setIsPaperLoaded} />
 						</div>
