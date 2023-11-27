@@ -1,22 +1,15 @@
 import styles from '../styles/gallery.module.css';
 import { Group } from "@mantine/core";
 import SaveSlot from "./SaveSlot";
-
-interface savedShape {
-	timestamp: string | null;
-	svg: string | null;
-}
-
-interface GalleryProps {
-	collection: savedShape[];
-}
+import ShapeContext from '../ShapeContext';
+import { useContext } from 'react';
 
 
-const Gallery = (props: GalleryProps) => {
+const Gallery = () => {
 
-	const { collection } = props;
+	const { shapeCollection } = useContext(ShapeContext);
 
-	return <Group grow gap={0} className={styles.gallery}>{collection.map( (item, i) => <SaveSlot key={i} name={"test"} placeholder={item.svg}></SaveSlot> )}</Group>
+	return <Group grow gap={0} className={styles.gallery}>{shapeCollection.map( (item, i) => <SaveSlot key={i} num={i} placeholder={item.svg}></SaveSlot> )}</Group>
 }
 
 export default Gallery;

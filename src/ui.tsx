@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from "react";
+import { SyntheticEvent, useContext, useEffect, useState } from "react";
 
 import {
 	Container,
@@ -29,6 +29,7 @@ import PaperStage from "./components/PaperStage";
 import { reset, initModel, configure, draw, extractPath } from "./stage";
 import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
+import ShapeContext from "./ShapeContext";
 
 
 interface savedShape {
@@ -63,9 +64,9 @@ const UI = () => {
 	const [artColor, setArtColor] = useState("10FF0C");
 	const [scaleCtrl, setScaleCtrl] = useState(3);
 
-	const [shapeCollection, setShapeCollection] = useState<savedShape[]>(new Array(6).fill({timestamp: null, svg: null}))
+	const { shapeCollection, setShapeCollection } = useContext(ShapeContext);
 
-	const [svgTest, setSvgTest] = useState(null);
+	// const [shapeCollection, setShapeCollection] = useState<savedShape[]>(new Array(6).fill({timestamp: null, svg: null}))
 
 	// -------------------------------------------------------------------------------------------------------
 	// HOOKS
@@ -232,6 +233,7 @@ const UI = () => {
 								borderLeft: `1px solid ${dark}`,
 							}}
 						>
+							<PaperStage onPaperLoad={setIsPaperLoaded} />
 							<div
 								style={{
 									position: "absolute",
@@ -258,9 +260,8 @@ const UI = () => {
 									width: "100%"
 								}}
 							>
-								<Gallery collection={shapeCollection} />
+								<Gallery />
 							</div>
-							<PaperStage onPaperLoad={setIsPaperLoaded} />
 						</div>
 					</Grid.Col>
 				</Grid>
