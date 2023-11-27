@@ -18,8 +18,8 @@ export function reset() {
 // Note: initializes the requested model and creates a state and or context that is used by the other methods: generate, regenerate and redraw;
 export function initModel(selectedModel: any) {
   model = new selectedModel(
-    (view.size.width + view.size.height) / 9,
-    view.center,
+    (view.size.width + view.size.height) / 12,
+    [view.center.x, view.center.y - view.size.height/9],
   );
 }
 

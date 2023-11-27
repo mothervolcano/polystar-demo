@@ -61,6 +61,9 @@ class Polystar {
 		const polyField = new OrbitalField(this._position, polyRadius);
 		const starField = new OrbitalField(this._position, starRadius);
 
+		polyField.rotate(90)
+		starField.rotate(90)
+
 		const num = sideCtrl;
 		const polySpineLength = this._radius;
 		const starSpineLength = this._radius;
@@ -151,11 +154,6 @@ class Polystar {
 			// starPts[i].steer(90).scaleHandles( curveCtrl );
 			this._path.add(convertToSegment(starPts[i]));
 		}
-
-		// ----------------------------------------------
-		//
-
-		// this._path.rotate( 90, this._position.point );
 	}
 
 	public getShapePath() {

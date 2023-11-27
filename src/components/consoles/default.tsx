@@ -36,7 +36,7 @@ const DefaultConsole = (props: ConsoleProps) => {
 	}
 
 	return (
-		<Stack gap={25}>
+		<Stack p="1rem" gap={25}>
 			<Stack gap={3}>
 				<StyledText>{params[0].label}</StyledText>
 				<Slider

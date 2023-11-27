@@ -10,11 +10,11 @@ import HyperPoint from '../../lib/topo/core/hyperPoint'
 class Orbital extends AttractorObject {
 
 	
-	private _debugPath1: any;
-	private _debugPath2: any;
-	private _debugPath3: any;
-	private _debugPath4: any;
-	private _arrow: any;
+	// private _debugPath1: any;
+	// private _debugPath2: any;
+	// private _debugPath3: any;
+	// private _debugPath4: any;
+	// private _arrow: any;
 
 	// private _fixedOrientation: boolean;
 
@@ -25,12 +25,12 @@ class Orbital extends AttractorObject {
 
 		this.radius = Array.isArray(radius) ? radius[0] : radius;
 
-		this._debugPath1 = new Path();
-		this._debugPath2 = new Path();
-		this._debugPath3 = new Path();
-		this._debugPath4 = new Path();
+		// this._debugPath1 = new Path();
+		// this._debugPath2 = new Path();
+		// this._debugPath3 = new Path();
+		// this._debugPath4 = new Path();
 
-		this._arrow = new Group();
+		// this._arrow = new Group();
 
 		this.render();
 
@@ -67,9 +67,10 @@ class Orbital extends AttractorObject {
 		})
 
 		/* DEBUG */
-		this.addOrientationArrow();
+		// this.addOrientationArrow();
 
-		super.render( new Group( [ this._path, this._arrow ] ) );
+		// super.render( new Group( [ this._path, this._arrow ] ) );
+		super.render( this._path );
 
 	};
 
@@ -115,42 +116,42 @@ class Orbital extends AttractorObject {
 	};
 
 
-	private addOrientationArrow() {
+	// private addOrientationArrow() {
 
-		this._debugPath1.remove();
-		this._debugPath2.remove();
-		this._debugPath3.remove();
-		this._debugPath4.remove();
+	// 	this._debugPath1.remove();
+	// 	this._debugPath2.remove();
+	// 	this._debugPath3.remove();
+	// 	this._debugPath4.remove();
 
-		this._arrow.remove();
+	// 	this._arrow.remove();
 
-		this._arrow = new Group();
+	// 	this._arrow = new Group();
 
-		this._debugPath1 = new Path({ segments: [ this._path.segments[0], this._path.segments[1] ], strokeColor: '#70D9FF' });
+	// 	this._debugPath1 = new Path({ segments: [ this._path.segments[0], this._path.segments[1] ], strokeColor: '#70D9FF' });
 		
-		let _A = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
-		let _Ar = _A.rotate( 30, this._debugPath1.lastSegment.point );
+	// 	let _A = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
+	// 	let _Ar = _A.rotate( 30, this._debugPath1.lastSegment.point );
 		
-		let _B = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
-		let _Br = _B.rotate( -40, this._debugPath1.lastSegment.point );
+	// 	let _B = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
+	// 	let _Br = _B.rotate( -40, this._debugPath1.lastSegment.point );
 
-		this._debugPath2 = new Path( {
-		                            segments: [ this._debugPath1.lastSegment.point, _Ar ],
-		                            strokeColor: '#70D9FF' });
+	// 	this._debugPath2 = new Path( {
+	// 	                            segments: [ this._debugPath1.lastSegment.point, _Ar ],
+	// 	                            strokeColor: '#70D9FF' });
 		
-		this._debugPath3 = new Path( {
-		                            segments: [ this._debugPath1.lastSegment.point, _Br ],
-		                            strokeColor: '#70D9FF' });
+	// 	this._debugPath3 = new Path( {
+	// 	                            segments: [ this._debugPath1.lastSegment.point, _Br ],
+	// 	                            strokeColor: '#70D9FF' });
 
-		this._debugPath4 = new Path.Circle({center: this._debugPath1.firstSegment.point, radius: 2, fillColor: '#70D9FF'});
+	// 	this._debugPath4 = new Path.Circle({center: this._debugPath1.firstSegment.point, radius: 2, fillColor: '#70D9FF'});
 	
 
-		this._arrow.addChild(this._debugPath1);
-		this._arrow.addChild(this._debugPath2);
-		this._arrow.addChild(this._debugPath3);
-		this._arrow.addChild(this._debugPath4);
+	// 	this._arrow.addChild(this._debugPath1);
+	// 	this._arrow.addChild(this._debugPath2);
+	// 	this._arrow.addChild(this._debugPath3);
+	// 	this._arrow.addChild(this._debugPath4);
 
-	}
+	// }
 
 	public reset() {
 

@@ -15,8 +15,9 @@ import {
 	Slider,
 	AspectRatio,
 	Group,
-    ColorPicker,
-    Button,
+	ColorPicker,
+	Button,
+	Divider,
 } from "@mantine/core";
 
 // .......................................................
@@ -31,9 +32,7 @@ import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
 import ShapeContext from "./ShapeContext";
 
-
 interface savedShape {
-
 	timestamp: string | null;
 	svg: string | null;
 }
@@ -57,9 +56,7 @@ const UI = () => {
 	const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
 	const [initialized, setInitialized] = useState<boolean>(false);
 	const [models, currentModel, setCurrentModel] = useModel();
-	const [paramsForConsole, setParamsForConsole] = useState<ParamSet | null>(
-		null,
-	);
+	const [paramsForConsole, setParamsForConsole] = useState<ParamSet | null>(null);
 	const [hasFill, setHasFill] = useState<boolean>(true);
 	const [artColor, setArtColor] = useState("10FF0C");
 	const [scaleCtrl, setScaleCtrl] = useState(3);
@@ -109,7 +106,6 @@ const UI = () => {
 
 		reset();
 		draw(params, scaleCtrl);
-
 	}, [paramsForConsole]);
 
 	// ......................................................
@@ -127,13 +123,11 @@ const UI = () => {
 			color: artColor,
 		};
 
-		console.log("color: ", artColor)
+		console.log("color: ", artColor);
 
 		reset();
 		configure(options);
 		draw(params, scaleCtrl);
-
-
 	}, [hasFill, artColor]);
 
 	// -------------------------------------------------------------------------------------------------------
@@ -143,37 +137,29 @@ const UI = () => {
 		setParamsForConsole(updatedParams);
 	};
 
-
 	const saveShape = (event: SyntheticEvent) => {
-
 		event.preventDefault();
 
 		const currentShapeSvgData = convertPathToSVG(extractPath(), 1);
 
 		const shapeToSave = {
-
 			timestamp: null,
-			svg: currentShapeSvgData
-		}
+			svg: currentShapeSvgData,
+		};
 
 		const collection = shapeCollection.slice();
-		const nextSlot = collection.findIndex( item => item.svg === null );
+		const nextSlot = collection.findIndex((item) => item.svg === null);
 		collection[nextSlot] = shapeToSave;
 
-		setShapeCollection(collection)
-	}
+		setShapeCollection(collection);
+	};
 
 	// -------------------------------------------------------------------------------------------------------
 	// BLOCKS
 
 	const switchConsole = (model: Model) => {
 		const Console = model.console;
-		return (
-			<Console
-				params={paramsForConsole}
-				inputHandler={handleParamCtrlInputForModel}
-			/>
-		);
+		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} />;
 	};
 
 	// -------------------------------------------------------------------------------------------------------
@@ -208,21 +194,21 @@ const UI = () => {
 							<Title c={light}>Polystar</Title>
 							<Space h="md" />
 							<Text size="sm" c={softLight}>
-								Project description goes here. It should be a
-								brief succint text introducing the concept
+								Project description goes here. It should be a brief succint text introducing the concept
 							</Text>
 						</Container>
-						<Stack w={"100%"} p={15}>
-							{initialized &&
-								currentModel &&
-								switchConsole(currentModel)}
-							<ColorPicker
-								w="100%" 
-								format="hex"
-								value={artColor}
-								onChange={setArtColor}
-							/>
-							<Button variant="filled" onClick={saveShape}>Save</Button>
+						<Stack w={"100%"} p={0} gap={15}>
+							{initialized && currentModel && switchConsole(currentModel)}
+								<Divider  />
+							<div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
+								<Text size="xs" fw="500" c="var(--mantine-color-dark-3)">
+									Change Fill Color
+								</Text>
+								<Space h="sm" />
+								<ColorPicker w="100%" format="hex" value={artColor} onChange={setArtColor} />
+							</div>
+								<Divider my="md"/>
+							<Space h="md" />
 						</Stack>
 					</Grid.Col>
 					<Grid.Col span={10}>
@@ -240,26 +226,20 @@ const UI = () => {
 									top: "15px",
 									left: "15px",
 								}}
-							>
-								<Stack gap={9}>
-									<Text
-										size="sm"
-										fw={500}
-										c={softDark}
-										ml="1vw"
-									>
-										Choose a model...
-									</Text>
-								</Stack>
-							</div>
+							></div>
 							<div
 								style={{
 									position: "absolute",
 									bottom: "0px",
 									left: "0px",
-									width: "100%"
+									width: "100%",
 								}}
 							>
+								<Flex justify="flex-end">
+									<Button style={{}} m="1rem" variant="filled" onClick={saveShape}>
+										Save
+									</Button>
+								</Flex>
 								<Gallery />
 							</div>
 						</div>
