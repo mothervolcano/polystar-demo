@@ -1,0 +1,12 @@
+.gallery {
+	border-top: 1px solid black;
+}
+
+.gallery div:first-child {
+	border-left: none;
+}
+
+.gallery div{
+	border-left: 1px solid black;
+}
+
