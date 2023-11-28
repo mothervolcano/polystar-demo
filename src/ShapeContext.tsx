@@ -3,6 +3,8 @@ import { createContext, ReactNode, useState } from "react";
 interface SavedShape {
 	timestamp: string | null;
 	svg: string | null;
+	width: number | null;
+	height: number | null;
 }
 
 interface ShapeContextType {
@@ -14,7 +16,7 @@ interface ContextProps {
 	children: ReactNode;
 }
 
-const initCollection: SavedShape[] = new Array(6).fill({ timestamp: null, svg: null });
+const initCollection: SavedShape[] = new Array(6).fill({ timestamp: null, svg: null, widht: null, height: null });
 
 const ShapeContext = createContext<ShapeContextType>({ shapeCollection: initCollection, setShapeCollection: () => {} });
 

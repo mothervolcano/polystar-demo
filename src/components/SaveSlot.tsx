@@ -5,34 +5,44 @@ import ShapeContext from "../ShapeContext";
 interface SaveSlotProps {
 	num: number;
 	placeholder: any;
+	shapeData: any;
 }
 
 const SaveSlot = (props: SaveSlotProps) => {
-	const { num, placeholder } = props;
+	const { num, placeholder, shapeData } = props;
 
-	const {shapeCollection, setShapeCollection} = useContext(ShapeContext);
+	const { shapeCollection, setShapeCollection } = useContext(ShapeContext);
 
 	console.log("SVG data: ", placeholder);
 
 	const onDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
-
-		console.log('DELETE SHAPE: ', event.currentTarget.value);
+		console.log("DELETE SHAPE: ", event.currentTarget.value);
 
 		const updatedCollection = shapeCollection.slice();
-		updatedCollection[Number(event.currentTarget.value)] = { timestamp: null, svg: null };
+		updatedCollection[Number(event.currentTarget.value)] = { timestamp: null, svg: null, width: null, height: null };
 
 		setShapeCollection(updatedCollection);
-	}
+	};
 
 	return (
 		<div>
 			<AspectRatio ratio={1 / 1}>
 				<Container>
-					{placeholder && (<Button variant="default" size="xs" value={num} style={{position: "absolute", bottom: "1rem", right: "1rem"}} onClick={(event) => onDelete(event)}>Delete</Button>)}
-					{placeholder && (
-						<svg width="100%" height="100%" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-							<path d={placeholder} fill="black" />
-						</svg>
+					{shapeData && shapeData.svg && (
+						<div>
+							<Button
+								variant="default"
+								size="xs"
+								value={num}
+								style={{ position: "absolute", bottom: "1rem", right: "1rem" }}
+								onClick={(event) => onDelete(event)}
+							>
+								Remove
+							</Button>
+							<svg style={{padding: "1rem"}} width="100%" height="100%" viewBox={`0 0 ${shapeData.width} ${shapeData.height}`} xmlns="http://www.w3.org/2000/svg">
+								<path d={shapeData.svg} fill="black" />
+							</svg>
+						</div>
 					)}
 				</Container>
 			</AspectRatio>

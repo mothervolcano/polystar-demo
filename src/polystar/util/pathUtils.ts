@@ -22,7 +22,7 @@ export function convertPathToSVG( path: any, scale: number = 1 ) {
 
     if ( c.isLast() )
     {
-      //output += " Z";
+      output += " Z";
     }
 
   }

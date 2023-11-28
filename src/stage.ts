@@ -39,6 +39,12 @@ export function draw(params: any, scaleCtrl: number) {
 
 export function extractPath() {
   if (model) {
-    return model.getShapePath();
+
+    const pathForSvg = model.getShapePath().clone();
+    pathForSvg.visible = false;
+    pathForSvg.pivot = pathForSvg.bounds.topLeft;
+    pathForSvg.position = [0,0];
+
+    return pathForSvg;
   }
 }

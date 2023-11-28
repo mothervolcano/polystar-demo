@@ -32,10 +32,6 @@ import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
 import ShapeContext from "./ShapeContext";
 
-interface savedShape {
-	timestamp: string | null;
-	svg: string | null;
-}
 
 // --------------------------------------------------------------
 // HELPERS
@@ -140,12 +136,17 @@ const UI = () => {
 	const saveShape = (event: SyntheticEvent) => {
 		event.preventDefault();
 
-		const currentShapeSvgData = convertPathToSVG(extractPath(), 1);
+		const currentShapePath = extractPath();
+		const currentShapeSvgData = convertPathToSVG(currentShapePath, 1);
 
 		const shapeToSave = {
 			timestamp: null,
 			svg: currentShapeSvgData,
+			width: currentShapePath.bounds.width,
+			height: currentShapePath.bounds.height
 		};
+
+		currentShapePath.remove();
 
 		const collection = shapeCollection.slice();
 		const nextSlot = collection.findIndex((item) => item.svg === null);
