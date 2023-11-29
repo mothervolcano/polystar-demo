@@ -155,6 +155,32 @@ const UI = () => {
 		setShapeCollection(collection);
 	};
 
+	const handleCanvasResize = (width: number, height: number) => {
+		// ...
+		console.log("canvas size: ", width, height);
+
+		if (isPaperLoaded && width && height) {
+			console.log(`2 --> RESIZING for`, currentModel);
+
+		setParamsForConsole(currentModel.params);
+		const params = parseParams(currentModel.params);
+
+		const options = {
+			fill: hasFill,
+			color: artColor,
+		};
+
+		reset(width, height);
+		initModel(currentModel.model);
+		configure(options);
+		draw(params, scaleCtrl);
+
+		if (!initialized) {
+			setInitialized(true);
+		}
+		}
+	};
+
 	// -------------------------------------------------------------------------------------------------------
 	// BLOCKS
 
@@ -220,7 +246,7 @@ const UI = () => {
 								borderLeft: `1px solid ${dark}`,
 							}}
 						>
-							<PaperStage onPaperLoad={setIsPaperLoaded} />
+							<PaperStage onPaperLoad={setIsPaperLoaded} onResize={handleCanvasResize}/>
 							<div
 								style={{
 									position: "absolute",
