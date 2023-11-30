@@ -1,8 +1,7 @@
 import { useRef, useEffect, useLayoutEffect, useState } from "react";
 
-import useResizeObserver from "@react-hook/resize-observer";
-
 import { PaperScope } from "paper";
+import useResizeObserver from "@react-hook/resize-observer";
 
 export const paperScope = new PaperScope();
 
@@ -43,15 +42,16 @@ const PaperStage = ({ onPaperLoad, onResize }: any) => {
 	    if (canvasRef.current && size) {
 	        canvasRef.current.width = size.width;
 	        canvasRef.current.height = size.height;
-	        // paperScope.project.view.viewSize = new paperScope.Size(size.width, size.height);
-	        // paperScope.setup(canvasRef.current);
 	        onResize({width: size.width, height: size.height});
 	    }
 	}, [size]);
 
+	const canvasWidth = size ? `${size.width}px` : "100%";
+	const canvasHeight = size ? `${size.height}px` : "100%";
+
 	return (
-		<div style={{ width: "100%", height: "100%"}} ref={containerRef}>
-			<canvas style={{ position: "relative", width: "100%", height: "100%" }} ref={canvasRef}></canvas>
+	    <div ref={containerRef} style={{width: "100%", height: "100%"}}>
+			<canvas style={{position: "relative", width: canvasWidth, height: canvasHeight}} ref={canvasRef}></canvas>
 		</div>
 	);
 };

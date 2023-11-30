@@ -1,4 +1,4 @@
-import { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { SyntheticEvent, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import {
 	Container,
@@ -20,6 +20,9 @@ import {
 	Divider,
 } from "@mantine/core";
 
+import { useMediaQuery } from "@mantine/hooks";
+import useResizeObserver from "@react-hook/resize-observer";
+
 // .......................................................
 
 import { Model, Param, ParamSet } from "./polystar";
@@ -31,7 +34,6 @@ import { reset, resize, initModel, configure, draw, extractPath } from "./stage"
 import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
 import ShapeContext from "./ShapeContext";
-
 
 // --------------------------------------------------------------
 // HELPERS
@@ -46,12 +48,43 @@ function parseParams(updatedParams: ParamSet) {
 	return modelParams;
 }
 
+// --------------------------------------------------------------
+// LAYOUT COMPONENTS
+
+const Layout = ({ orientation, children }: any) => {
+	// ...
+	if (orientation === "LANDSCAPE") {
+		return (
+			<Flex direction="row">
+				<div style={{ position: "relative", minWidth: "300px", maxWidth: "25%" }}>{children[0]}</div>
+				<div style={{ position: "relative", minWidth: "250px", flexGrow: "1" }}>{children[1]}</div>
+			</Flex>
+		);
+	} else if (orientation === "PORTRAIT") {
+		// return (<div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+		// 			{/*<div style={{minHeight: "200px", maxHeight: "30%"}}>{children[1]}</div>*/}
+		// 			<div style={{height: "20vh"}}>{children[1]}</div>
+		// 			<div style={{minWidth: "250px", flexGrow: "1"}}>{children[0]}</div>
+		// 		</div>)
+		return (
+			<Stack justify="flex-start" align="stretch">
+				<div style={{ position: "relative" }}>{children[1]}</div>
+				<div style={{ position: "relative" }}>{children[0]}</div>
+			</Stack>
+		);
+	} else {
+		return null;
+	}
+};
+
 // -------------------------------------------------------------------------------------------------------
 
 const UI = () => {
+	const containerRef = useRef<HTMLDivElement>(null);
+
 	const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
 	const [initialized, setInitialized] = useState<boolean>(false);
-	const [stageSize, setStageSize] = useState<{width: number, height: number} | null>(null);
+	const [stageSize, setStageSize] = useState<{ width: number; height: number } | null>(null);
 	const [models, currentModel, setCurrentModel] = useModel();
 	const [paramsForConsole, setParamsForConsole] = useState<ParamSet | null>(null);
 	const [hasFill, setHasFill] = useState<boolean>(true);
@@ -139,8 +172,9 @@ const UI = () => {
 			return () => {};
 		}
 
-		if (stageSize) { resize(stageSize); }
-
+		if (stageSize) {
+			resize(stageSize);
+		}
 	}, [stageSize]);
 
 	// -------------------------------------------------------------------------------------------------------
@@ -151,6 +185,7 @@ const UI = () => {
 	};
 
 	const saveShape = (event: SyntheticEvent) => {
+		// ...
 		event.preventDefault();
 
 		const currentShapePath = extractPath();
@@ -160,7 +195,7 @@ const UI = () => {
 			timestamp: null,
 			svg: currentShapeSvgData,
 			width: currentShapePath.bounds.width,
-			height: currentShapePath.bounds.height
+			height: currentShapePath.bounds.height,
 		};
 
 		currentShapePath.remove();
@@ -172,16 +207,14 @@ const UI = () => {
 		setShapeCollection(collection);
 	};
 
+	// -------------------------------------------------------------------------------------------------------
+	// MEDIA QUERIES
+
+	const isDesktop = useMediaQuery("(min-width: 1024px)");
+	const isLandscape = useMediaQuery("(orientation: landscape)");
 
 	// -------------------------------------------------------------------------------------------------------
-	// BLOCKS
-
-	const switchConsole = (model: Model) => {
-		const Console = model.console;
-		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} />;
-	};
-
-	// -------------------------------------------------------------------------------------------------------
+	// STYLES
 
 	const frameMargin = 6;
 	const dark = DEFAULT_THEME.colors.dark[5];
@@ -189,81 +222,121 @@ const UI = () => {
 	const light = DEFAULT_THEME.colors.gray[0];
 	const softLight = DEFAULT_THEME.colors.gray[2];
 
+	const containerStyle = {
+		// position: "relative",
+		width: "100%",
+		height: "100vh",
+		padding: isDesktop ? `${frameMargin}vh` : "0",
+	};
+
+	const frameStyle = {
+		border: isDesktop ? `1px solid ${dark}` : "none",
+		borderRadius: isDesktop ? `10px` : "none",
+	};
+
+	const sidebarStyle = {
+		borderRadius: isDesktop ? "8px 0 0 0" : "none",
+	};
+
+	const stageStyle = {
+		height: isLandscape ? `${100 - frameMargin * 2}vh` : `40vh`,
+		borderLeft: `1px solid ${dark}`,
+	};
+
+	const titleStyle = {
+		position: "absolute",
+		top: "15px",
+		left: "15px",
+	};
+
+	// -------------------------------------------------------------------------------------------------------
+	// BLOCKS
+
+	const consoleSwitch = (model: Model) => {
+		const Console = model.console;
+		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} />;
+	};
+
+	const title = () => {
+		return (
+			<div
+				style={{
+					position: "absolute",
+					top: "15px",
+					left: "15px",
+				}}
+			>
+				<Title c={dark}>Polystar</Title>
+			</div>
+		);
+	};
+
+	const header = () => {
+		return (
+			<Container fluid w="100%" bg={dark} pt="sm" pb="md" mb="md" style={sidebarStyle}>
+				<Title c={light}>Polystar</Title>
+				<Space h="md" />
+				<Text size="sm" c={softLight}>
+					Project description goes here. It should be a brief succint text introducing the concept
+				</Text>
+			</Container>
+		);
+	};
+
+	const panel = () => {
+		return (
+			<div style={{ width: "100%" }}>
+				{isLandscape ? header() : <Divider />}
+				<Stack w={"100%"} p={0} gap={15}>
+					{initialized && currentModel && consoleSwitch(currentModel)}
+					<Divider />
+					<div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
+						<Text size="xs" fw="500" c="var(--mantine-color-dark-3)">
+							Change Fill Color
+						</Text>
+						<Space h="sm" />
+						<ColorPicker w="100%" format="hex" value={artColor} onChange={setArtColor} />
+					</div>
+					<Divider my="md" />
+					<Space h="md" />
+				</Stack>
+			</div>
+		);
+	};
+
+	const stage = () => {
+		return (
+			<div style={stageStyle}>
+				<PaperStage onPaperLoad={setIsPaperLoaded} onResize={setStageSize} />
+				{!isLandscape && title()}
+				<div
+					style={{
+						position: "absolute",
+						bottom: "0px",
+						left: "0px",
+						width: "100%",
+					}}
+				>
+					<Flex justify="flex-end">
+						<Button style={{}} m="1rem" variant="filled" onClick={saveShape}>
+							Save
+						</Button>
+					</Flex>
+					{isLandscape && <Gallery />}
+				</div>
+			</div>
+		);
+	};
+
+	// -------------------------------------------------------------------------------------------------------
+
 	return (
-		<div
-			style={{
-				position: "relative",
-				width: "100%",
-				height: "100vh",
-				padding: `${frameMargin}vh`,
-			}}
-		>
-			<div style={{ border: `1px solid ${dark}`, borderRadius: `10px` }}>
-				<Grid align="stretch" gutter={0}>
-					<Grid.Col span={2}>
-						<Container
-							fluid
-							w="100%"
-							bg={dark}
-							pt="sm"
-							pb="md"
-							mb="md"
-							style={{ borderRadius: "8px 0 0 0" }}
-						>
-							<Title c={light}>Polystar</Title>
-							<Space h="md" />
-							<Text size="sm" c={softLight}>
-								Project description goes here. It should be a brief succint text introducing the concept
-							</Text>
-						</Container>
-						<Stack w={"100%"} p={0} gap={15}>
-							{initialized && currentModel && switchConsole(currentModel)}
-								<Divider  />
-							<div style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
-								<Text size="xs" fw="500" c="var(--mantine-color-dark-3)">
-									Change Fill Color
-								</Text>
-								<Space h="sm" />
-								<ColorPicker w="100%" format="hex" value={artColor} onChange={setArtColor} />
-							</div>
-								<Divider my="md"/>
-							<Space h="md" />
-						</Stack>
-					</Grid.Col>
-					<Grid.Col span={10}>
-						<div
-							style={{
-								position: "relative",
-								height: `${100 - frameMargin * 2}vh`,
-								borderLeft: `1px solid ${dark}`,
-							}}
-						>
-							<PaperStage onPaperLoad={setIsPaperLoaded} onResize={setStageSize}/>
-							<div
-								style={{
-									position: "absolute",
-									top: "15px",
-									left: "15px",
-								}}
-							></div>
-							<div
-								style={{
-									position: "absolute",
-									bottom: "0px",
-									left: "0px",
-									width: "100%",
-								}}
-							>
-								<Flex justify="flex-end">
-									<Button style={{}} m="1rem" variant="filled" onClick={saveShape}>
-										Save
-									</Button>
-								</Flex>
-								<Gallery />
-							</div>
-						</div>
-					</Grid.Col>
-				</Grid>
+		<div style={containerStyle}>
+			<div style={frameStyle}>
+				<Layout orientation={isLandscape ? "LANDSCAPE" : "PORTRAIT"}>
+					{panel()}
+					{stage()}
+				</Layout>
 			</div>
 		</div>
 	);
