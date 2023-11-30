@@ -13,8 +13,6 @@ const SaveSlot = (props: SaveSlotProps) => {
 
 	const { shapeCollection, setShapeCollection } = useContext(ShapeContext);
 
-	console.log("SVG data: ", placeholder);
-
 	const onDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
 		console.log("DELETE SHAPE: ", event.currentTarget.value);
 

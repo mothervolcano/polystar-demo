@@ -27,7 +27,7 @@ import { Model, Param, ParamSet } from "./polystar";
 import useModel from "./hooks/useModel";
 import PaperStage from "./components/PaperStage";
 
-import { reset, initModel, configure, draw, extractPath } from "./stage";
+import { reset, resize, initModel, configure, draw, extractPath } from "./stage";
 import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
 import ShapeContext from "./ShapeContext";
@@ -51,6 +51,7 @@ function parseParams(updatedParams: ParamSet) {
 const UI = () => {
 	const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
 	const [initialized, setInitialized] = useState<boolean>(false);
+	const [stageSize, setStageSize] = useState<{width: number, height: number} | null>(null);
 	const [models, currentModel, setCurrentModel] = useModel();
 	const [paramsForConsole, setParamsForConsole] = useState<ParamSet | null>(null);
 	const [hasFill, setHasFill] = useState<boolean>(true);
@@ -80,6 +81,7 @@ const UI = () => {
 			color: artColor,
 		};
 
+		// if (stageSize) { resize(stageSize); }
 		reset();
 		initModel(currentModel.model);
 		configure(options);
@@ -88,9 +90,10 @@ const UI = () => {
 		if (!initialized) {
 			setInitialized(true);
 		}
-	}, [isPaperLoaded]);
+	}, [isPaperLoaded, stageSize]);
 
 	// ......................................................
+	// Shape modifier controls changed
 
 	useEffect(() => {
 		if (!isPaperLoaded) {
@@ -100,11 +103,13 @@ const UI = () => {
 
 		const params = parseParams(currentModel.params);
 
+		// if (stageSize) { resize(stageSize); }
 		reset();
 		draw(params, scaleCtrl);
 	}, [paramsForConsole]);
 
 	// ......................................................
+	// Color settings changed
 
 	useEffect(() => {
 		if (!isPaperLoaded) {
@@ -125,6 +130,18 @@ const UI = () => {
 		configure(options);
 		draw(params, scaleCtrl);
 	}, [hasFill, artColor]);
+
+	// .....................................................
+
+	useEffect(() => {
+		if (!isPaperLoaded) {
+			console.log("PAPER ISN'T LOADED");
+			return () => {};
+		}
+
+		if (stageSize) { resize(stageSize); }
+
+	}, [stageSize]);
 
 	// -------------------------------------------------------------------------------------------------------
 	// HANDLERS
@@ -155,31 +172,6 @@ const UI = () => {
 		setShapeCollection(collection);
 	};
 
-	const handleCanvasResize = (width: number, height: number) => {
-		// ...
-		console.log("canvas size: ", width, height);
-
-		if (isPaperLoaded && width && height) {
-			console.log(`2 --> RESIZING for`, currentModel);
-
-		setParamsForConsole(currentModel.params);
-		const params = parseParams(currentModel.params);
-
-		const options = {
-			fill: hasFill,
-			color: artColor,
-		};
-
-		reset(width, height);
-		initModel(currentModel.model);
-		configure(options);
-		draw(params, scaleCtrl);
-
-		if (!initialized) {
-			setInitialized(true);
-		}
-		}
-	};
 
 	// -------------------------------------------------------------------------------------------------------
 	// BLOCKS
@@ -246,7 +238,7 @@ const UI = () => {
 								borderLeft: `1px solid ${dark}`,
 							}}
 						>
-							<PaperStage onPaperLoad={setIsPaperLoaded} onResize={handleCanvasResize}/>
+							<PaperStage onPaperLoad={setIsPaperLoaded} onResize={setStageSize}/>
 							<div
 								style={{
 									position: "absolute",

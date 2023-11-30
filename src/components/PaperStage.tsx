@@ -45,7 +45,7 @@ const PaperStage = ({ onPaperLoad, onResize }: any) => {
 	        canvasRef.current.height = size.height;
 	        // paperScope.project.view.viewSize = new paperScope.Size(size.width, size.height);
 	        // paperScope.setup(canvasRef.current);
-	        onResize(size.width, size.height);
+	        onResize({width: size.width, height: size.height});
 	    }
 	}, [size]);
 

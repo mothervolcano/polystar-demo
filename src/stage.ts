@@ -7,14 +7,18 @@ let guides: any;
 
 let model: any;
 
-export function reset(width?: number, height?: number) {
+export function reset() {
   paperScope.project.clear();
   view = paperScope.project.view;
-  if (width && height) {
-    view.viewSize = [width, height];
-  }
   layer = new Layer();
   guides = new Layer();
+}
+
+export function resize({width, height} : {width: number; height: number}) {
+
+  if (view) {
+    view.viewSize = [width, height];
+  } 
 }
 
 // Note: initializes the requested model and creates a state and or context that is used by the other methods: generate, regenerate and redraw;
