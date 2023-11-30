@@ -240,7 +240,8 @@ const UI = () => {
 
 	const stageStyle = {
 		height: isLandscape ? `${100 - frameMargin * 2}vh` : `40vh`,
-		borderLeft: `1px solid ${dark}`,
+		borderLeft: isLandscape ? `1px solid ${dark}` : "none",
+		borderBottom: isLandscape ? "none" : `1px solid ${dark}`,
 	};
 
 	const titleStyle = {
@@ -286,7 +287,7 @@ const UI = () => {
 	const panel = () => {
 		return (
 			<div style={{ width: "100%" }}>
-				{isLandscape ? header() : <Divider />}
+				{isLandscape && header()}
 				<Stack w={"100%"} p={0} gap={15}>
 					{initialized && currentModel && consoleSwitch(currentModel)}
 					<Divider />
@@ -317,12 +318,16 @@ const UI = () => {
 						width: "100%",
 					}}
 				>
-					<Flex justify="flex-end">
-						<Button style={{}} m="1rem" variant="filled" onClick={saveShape}>
-							Save
-						</Button>
-					</Flex>
-					{isLandscape && <Gallery />}
+					{isLandscape && (
+						<>
+							<Flex justify="flex-end">
+								<Button style={{}} m="1rem" variant="filled" onClick={saveShape}>
+									Save
+								</Button>
+							</Flex>
+							<Gallery />
+						</>
+					)}
 				</div>
 			</div>
 		);
