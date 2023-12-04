@@ -12,6 +12,7 @@ const defaultParams: ParamSet = [
     range: [3, 12],
     step: 1,
     label: "Sides",
+    rank: 1,
   },
   {
     id: "p1",
@@ -20,6 +21,7 @@ const defaultParams: ParamSet = [
     range: [0, 1],
     step: 0.01,
     label: "Push <> Pull",
+    rank: 1,
   },
   {
     id: "p2",
@@ -28,6 +30,7 @@ const defaultParams: ParamSet = [
     range: [0, 2],
     step: 0.01,
     label: "Twirl <>",
+    rank: 1,
   },
   {
     id: "p3",
@@ -36,6 +39,7 @@ const defaultParams: ParamSet = [
     range: [0, 1],
     step: 0.01,
     label: "Tip Roundness",
+    rank: 1,
   },
   {
     id: "p4",
@@ -44,6 +48,7 @@ const defaultParams: ParamSet = [
     range: [0, 1],
     step: 0.01,
     label: "Join Roundness",
+    rank: 1,
   },
   {
     id: "p5",
@@ -52,6 +57,7 @@ const defaultParams: ParamSet = [
     range: [0, 1],
     step: 0.01,
     label: "Tip Length",
+    rank: 2,
   },
   {
     id: "p6",
@@ -60,6 +66,7 @@ const defaultParams: ParamSet = [
     range: [0, 1],
     step: 0.01,
     label: "Body",
+    rank: 2,
   },
 ];
 

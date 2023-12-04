@@ -254,7 +254,7 @@ const UI = () => {
 
 	const consoleSwitch = (model: Model) => {
 		const Console = model.console;
-		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} />;
+		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} layout={"ROW"}/>;
 	};
 
 	const title = () => {
