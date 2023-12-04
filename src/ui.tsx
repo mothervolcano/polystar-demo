@@ -1,4 +1,4 @@
-import { SyntheticEvent, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { SyntheticEvent, useContext, useEffect, useRef, useState } from "react";
 
 import {
 	Container,
@@ -21,7 +21,6 @@ import {
 } from "@mantine/core";
 
 import { useMediaQuery } from "@mantine/hooks";
-import useResizeObserver from "@react-hook/resize-observer";
 
 // .......................................................
 
