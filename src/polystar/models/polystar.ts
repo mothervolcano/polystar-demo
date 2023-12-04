@@ -50,7 +50,6 @@ class Polystar {
 			tipRoundnessCtrl,
 			joinRoundessCtrl,
 			extendCtrl,
-			shrinkCtrl,
 		} = params;
 
 		const sides = sideCtrl;

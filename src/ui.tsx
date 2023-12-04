@@ -204,6 +204,7 @@ const UI = () => {
 
 	const isDesktop = useMediaQuery("(min-width: 1024px)");
 	const isLandscape = useMediaQuery("(orientation: landscape)");
+	const isPortrait = useMediaQuery("(orientation: portrait)");
 
 	// -------------------------------------------------------------------------------------------------------
 	// STYLES
@@ -242,12 +243,14 @@ const UI = () => {
 		left: "15px",
 	};
 
+	const consoleLayoutType = isPortrait ? "ROW" : "COL";
+
 	// -------------------------------------------------------------------------------------------------------
 	// BLOCKS
 
-	const consoleSwitch = (model: Model) => {
+	const consoleSwitch = (model: Model, layout: string) => {
 		const Console = model.console;
-		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} layout={"ROW"}/>;
+		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} layout={layout}/>;
 	};
 
 	const title = () => {
@@ -281,7 +284,7 @@ const UI = () => {
 			<div style={{ width: "100%" }}>
 				{isLandscape && header()}
 				<Stack w={"100%"} pl="1rem" pr="1rem" gap={15}>
-					{initialized && currentModel && consoleSwitch(currentModel)}
+					{initialized && currentModel && consoleSwitch(currentModel, consoleLayoutType)}
 					<Divider />
 					<div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
 						<Text size="xs" fw="500" c="var(--mantine-color-dark-3)">
