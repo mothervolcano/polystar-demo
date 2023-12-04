@@ -10,7 +10,7 @@ interface ConsoleProps {
 	params: any;
 	inputHandler: Function;
 	layout: string;
-	size: string;
+	mode: string;
 }
 
 interface Style {
@@ -21,19 +21,8 @@ interface Style {
 	gap?: string;
 }
 
-const labelStyleProps = {
-	size: "xs",
-	fw: "500",
-	c: "var(--mantine-color-dark-3)",
-	pb: "0.30rem",
-};
-
-const StyledText = (props: any) => {
-	return <Text {...labelStyleProps}>{props.children}</Text>;
-};
-
 const DefaultConsole = (props: ConsoleProps) => {
-	const { params, inputHandler, layout, size } = props;
+	const { params, inputHandler, layout, mode } = props;
 
 	// ------------------------------------------------------
 
@@ -65,7 +54,14 @@ const DefaultConsole = (props: ConsoleProps) => {
 		flexDirection: "column",
 	};
 
-	const gap = size === "COMPACT" ? "0.75rem" : "1rem";
+	const labelStyle = {
+		size: "xs",
+		fw: "500",
+		c: "var(--mantine-color-dark-3)",
+		pb: "0.30rem",
+	};
+
+	const gap = mode === "COMPACT" ? "0.90rem" : "1.50rem";
 
 	return (
 		<div style={layout === "ROW" ? rowLayout : colLayout}>
@@ -82,7 +78,18 @@ const DefaultConsole = (props: ConsoleProps) => {
 							}}
 						>
 							<div style={{ width: "100%", paddingBottom: gap }}>
-								<StyledText>{p.label}</StyledText>
+								<Text
+									size={mode === "COMPACT" ? "0.65rem" : "sm"}
+									fw={mode === "COMPACT" ? "400" : "500"}
+									c={
+										mode === "COMPACT"
+											? "var(--mantine-color-dark-2)"
+											: "var(--mantine-color-dark-3)"
+									}
+									pb={mode === "COMPACT" ? "0.45rem" : "0.60rem"}
+								>
+									{p.label}
+								</Text>
 								<Slider
 									id={p.id}
 									name={p.id}
@@ -117,7 +124,18 @@ const DefaultConsole = (props: ConsoleProps) => {
 							}}
 						>
 							<div style={{ width: "100%", paddingBottom: gap }}>
-								<StyledText>{p.label}</StyledText>
+								<Text
+									size={mode === "COMPACT" ? "0.65rem" : "sm"}
+									fw={mode === "COMPACT" ? "400" : "500"}
+									c={
+										mode === "COMPACT"
+											? "var(--mantine-color-dark-2)"
+											: "var(--mantine-color-dark-3)"
+									}
+									pb={mode === "COMPACT" ? "0.45rem" : "0.60rem"}
+								>
+									{p.label}
+								</Text>
 								<Slider
 									id={p.id}
 									name={p.id}

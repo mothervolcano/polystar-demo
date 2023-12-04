@@ -244,13 +244,14 @@ const UI = () => {
 	};
 
 	const consoleLayoutType = isPortrait ? "ROW" : "COL";
+	const consoleLayoutMode = isPortrait ? "COMPACT" : "NORMAL";
 
 	// -------------------------------------------------------------------------------------------------------
 	// BLOCKS
 
-	const consoleSwitch = (model: Model, layout: string) => {
+	const consoleSwitch = (model: Model, layout: string, mode: string) => {
 		const Console = model.console;
-		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} layout={layout}/>;
+		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} layout={layout} mode={mode}/>;
 	};
 
 	const title = () => {
@@ -284,7 +285,7 @@ const UI = () => {
 			<div style={{ width: "100%" }}>
 				{isLandscape && header()}
 				<Stack w={"100%"} pl="1rem" pr="1rem" gap={15}>
-					{initialized && currentModel && consoleSwitch(currentModel, consoleLayoutType)}
+					{initialized && currentModel && consoleSwitch(currentModel, consoleLayoutType, consoleLayoutMode)}
 					<Divider />
 					<div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
 						<Text size="xs" fw="500" c="var(--mantine-color-dark-3)">
