@@ -3,18 +3,11 @@ import { SyntheticEvent, useContext, useEffect, useRef, useState } from "react";
 import {
 	Container,
 	Flex,
-	Grid,
-	NumberInput,
-	SegmentedControl,
-	SegmentedControlItem,
 	Stack,
 	Title,
 	Text,
 	DEFAULT_THEME,
 	Space,
-	Slider,
-	AspectRatio,
-	Group,
 	ColorPicker,
 	Button,
 	Divider,
@@ -24,7 +17,7 @@ import { useMediaQuery } from "@mantine/hooks";
 
 // .......................................................
 
-import { Model, Param, ParamSet } from "./polystar";
+import { Model, ParamSet } from "./polystar";
 
 import useModel from "./hooks/useModel";
 import PaperStage from "./components/PaperStage";
@@ -238,7 +231,7 @@ const UI = () => {
 	};
 
 	const stageStyle = {
-		height: isLandscape ? `${100 - frameMargin * 2}vh` : `40vh`,
+		height: isLandscape ? `${100 - frameMargin * 2}vh` : `45vh`,
 		borderLeft: isLandscape ? `1px solid ${dark}` : "none",
 		borderBottom: isLandscape ? "none" : `1px solid ${dark}`,
 	};
@@ -262,8 +255,8 @@ const UI = () => {
 			<div
 				style={{
 					position: "absolute",
-					top: "15px",
-					left: "15px",
+					top: "0.50rem",
+					left: "1rem",
 				}}
 			>
 				<Title c={dark}>Polystar</Title>
@@ -287,7 +280,7 @@ const UI = () => {
 		return (
 			<div style={{ width: "100%" }}>
 				{isLandscape && header()}
-				<Stack w={"100%"} p={0} gap={15}>
+				<Stack w={"100%"} pl="1rem" pr="1rem" gap={15}>
 					{initialized && currentModel && consoleSwitch(currentModel)}
 					<Divider />
 					<div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
