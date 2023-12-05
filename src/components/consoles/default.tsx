@@ -86,7 +86,7 @@ const DefaultConsole = (props: ConsoleProps) => {
 											? "var(--mantine-color-dark-2)"
 											: "var(--mantine-color-dark-3)"
 									}
-									pb={mode === "COMPACT" ? "0.45rem" : "0.60rem"}
+									pb={mode === "COMPACT" ? "1rem" : "1rem"}
 								>
 									{p.label}
 								</Text>
@@ -101,9 +101,10 @@ const DefaultConsole = (props: ConsoleProps) => {
 									}}
 									value={p.value}
 									size="1px"
-									thumbSize={rem(10)}
+									thumbSize={rem(12)}
 									color={dark}
 									showLabelOnHover={false}
+									pb={mode === "COMPACT" ? "0.25rem" : "0.75rem"}
 									styles={{ thumb: { backgroundColor: dark, borderWidth: 0 } }}
 									classNames={sliderStyles}
 								/>
@@ -132,7 +133,7 @@ const DefaultConsole = (props: ConsoleProps) => {
 											? "var(--mantine-color-dark-2)"
 											: "var(--mantine-color-dark-3)"
 									}
-									pb={mode === "COMPACT" ? "0.45rem" : "0.60rem"}
+									pb={mode === "COMPACT" ? "1rem" : "1rem"}
 								>
 									{p.label}
 								</Text>
@@ -147,9 +148,10 @@ const DefaultConsole = (props: ConsoleProps) => {
 									}}
 									value={p.value}
 									size="1px"
-									thumbSize={rem(10)}
+									thumbSize={rem(12)}
 									color={dark}
 									showLabelOnHover={false}
+									pb={mode === "COMPACT" ? "0.25rem" : "0.75rem"}
 									styles={{ thumb: { backgroundColor: dark, borderWidth: 0 } }}
 									classNames={sliderStyles}
 								/>

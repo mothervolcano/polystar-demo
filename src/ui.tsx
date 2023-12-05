@@ -1,17 +1,6 @@
 import { SyntheticEvent, useContext, useEffect, useRef, useState } from "react";
 
-import {
-	Container,
-	Flex,
-	Stack,
-	Title,
-	Text,
-	DEFAULT_THEME,
-	Space,
-	ColorPicker,
-	Button,
-	Divider,
-} from "@mantine/core";
+import { Container, Flex, Stack, Title, Text, DEFAULT_THEME, Space, ColorPicker, Button, Divider } from "@mantine/core";
 
 import { useMediaQuery } from "@mantine/hooks";
 
@@ -48,7 +37,7 @@ const Layout = ({ orientation, children }: any) => {
 	if (orientation === "LANDSCAPE") {
 		return (
 			<Flex direction="row">
-				<div style={{ position: "relative", minWidth: "300px", maxWidth: "25%" }}>{children[0]}</div>
+				<div style={{ position: "relative", minWidth: "300px", maxWidth: "25%", overflowY: "auto" }}>{children[0]}</div>
 				<div style={{ position: "relative", minWidth: "250px", flexGrow: "1" }}>{children[1]}</div>
 			</Flex>
 		);
@@ -61,7 +50,7 @@ const Layout = ({ orientation, children }: any) => {
 		return (
 			<Stack justify="flex-start" align="stretch">
 				<div style={{ position: "relative" }}>{children[1]}</div>
-				<div style={{ position: "relative" }}>{children[0]}</div>
+				<div style={{ position: "relative", overflowY: "auto" }}>{children[0]}</div>
 			</Stack>
 		);
 	} else {
@@ -251,7 +240,14 @@ const UI = () => {
 
 	const consoleSwitch = (model: Model, layout: string, mode: string) => {
 		const Console = model.console;
-		return <Console params={paramsForConsole} inputHandler={handleParamCtrlInputForModel} layout={layout} mode={mode}/>;
+		return (
+			<Console
+				params={paramsForConsole}
+				inputHandler={handleParamCtrlInputForModel}
+				layout={layout}
+				mode={mode}
+			/>
+		);
 	};
 
 	const title = () => {
@@ -284,18 +280,19 @@ const UI = () => {
 		return (
 			<div style={{ width: "100%" }}>
 				{isLandscape && header()}
-				<Stack w={"100%"} pl="1rem" pr="1rem" gap={15}>
+				<Stack w={"100%"} pt="0.5rem" pl="1rem" pr="1rem" gap={15}>
 					{initialized && currentModel && consoleSwitch(currentModel, consoleLayoutType, consoleLayoutMode)}
-					<Divider />
-					<div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-						<Text size="xs" fw="500" c="var(--mantine-color-dark-3)">
+					<div style={{}}>
+						<Text
+							size={isPortrait ? "0.80rem" : "sm"}
+							fw={isPortrait ? "400" : "500"}
+							c={isPortrait ? "var(--mantine-color-dark-2)" : "var(--mantine-color-dark-3)"}
+						>
 							Change Fill Color
 						</Text>
 						<Space h="sm" />
-						<ColorPicker w="100%" format="hex" value={artColor} onChange={setArtColor} />
+						<ColorPicker size="xs" w="100%" format="hex" value={artColor} onChange={setArtColor} />
 					</div>
-					<Divider my="md" />
-					<Space h="md" />
 				</Stack>
 			</div>
 		);
