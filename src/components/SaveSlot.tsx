@@ -38,7 +38,7 @@ const SaveSlot = (props: SaveSlotProps) => {
 								Remove
 							</Button>
 							<svg style={{padding: "1rem"}} width="100%" height="100%" viewBox={`0 0 ${shapeData.width} ${shapeData.height}`} xmlns="http://www.w3.org/2000/svg">
-								<path d={shapeData.svg} fill="black" />
+								<path d={shapeData.svg} fill={shapeData.color} />
 							</svg>
 						</div>
 					)}

@@ -79,7 +79,7 @@ const DefaultConsole = (props: ConsoleProps) => {
 						>
 							<div style={{ width: "100%", paddingBottom: gap }}>
 								<Text
-									size={mode === "COMPACT" ? "0.65rem" : "sm"}
+									size={mode === "COMPACT" ? "0.65rem" : "xs"}
 									fw={mode === "COMPACT" ? "400" : "500"}
 									c={
 										mode === "COMPACT"
@@ -126,7 +126,7 @@ const DefaultConsole = (props: ConsoleProps) => {
 						>
 							<div style={{ width: "100%", paddingBottom: gap }}>
 								<Text
-									size={mode === "COMPACT" ? "0.65rem" : "sm"}
+									size={mode === "COMPACT" ? "0.65rem" : "xs"}
 									fw={mode === "COMPACT" ? "400" : "500"}
 									c={
 										mode === "COMPACT"

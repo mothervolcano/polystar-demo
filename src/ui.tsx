@@ -175,6 +175,7 @@ const UI = () => {
 		const shapeToSave = {
 			timestamp: null,
 			svg: currentShapeSvgData,
+			color: artColor,
 			width: currentShapePath.bounds.width,
 			height: currentShapePath.bounds.height,
 		};
