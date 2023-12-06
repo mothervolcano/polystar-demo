@@ -270,7 +270,7 @@ const UI = () => {
 				<Title c={light}>Polystar</Title>
 				<Space h="md" />
 				<Text size="sm" c={softLight}>
-					Project description goes here. It should be a brief succint text introducing the concept
+					A polygon based shape creator.
 				</Text>
 			</Container>
 		);
@@ -314,7 +314,7 @@ const UI = () => {
 					{isLandscape && (
 						<>
 							<Flex justify="flex-end">
-								<Button style={{}} m="1rem" variant="filled" onClick={saveShape}>
+								<Button style={{}} bg={dark}  m="1rem" variant="filled" onClick={saveShape}>
 									Save
 								</Button>
 							</Flex>
