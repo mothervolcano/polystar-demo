@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/polystar-demo/static/css/main.ffe3593d.css",
-    "main.js": "/polystar-demo/static/js/main.8746a2dd.js",
+    "main.js": "/polystar-demo/static/js/main.3cf55d5c.js",
     "static/js/787.8718efbe.chunk.js": "/polystar-demo/static/js/787.8718efbe.chunk.js",
     "index.html": "/polystar-demo/index.html",
     "main.ffe3593d.css.map": "/polystar-demo/static/css/main.ffe3593d.css.map",
-    "main.8746a2dd.js.map": "/polystar-demo/static/js/main.8746a2dd.js.map",
+    "main.3cf55d5c.js.map": "/polystar-demo/static/js/main.3cf55d5c.js.map",
     "787.8718efbe.chunk.js.map": "/polystar-demo/static/js/787.8718efbe.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ffe3593d.css",
-    "static/js/main.8746a2dd.js"
+    "static/js/main.3cf55d5c.js"
   ]
 }
