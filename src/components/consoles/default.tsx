@@ -1,10 +1,7 @@
-import { Text, Slider, Stack, DEFAULT_THEME, rem } from "@mantine/core";
-import sliderStyles from "../../styles/slider.module.css";
+import { DEFAULT_THEME } from "@mantine/core";
+import ControlSlider from "../ControlSlider";
 
 const dark = DEFAULT_THEME.colors.dark[5];
-const softDark = DEFAULT_THEME.colors.dark[0];
-const light = DEFAULT_THEME.colors.gray[0];
-const softLight = DEFAULT_THEME.colors.gray[2];
 
 interface ConsoleProps {
 	params: any;
@@ -27,7 +24,6 @@ const DefaultConsole = (props: ConsoleProps) => {
 	// ------------------------------------------------------
 
 	function handleSliderInput(value: number, id: string) {
-		console.log(`@DefaultConsole: slider ---> ${value}  / ${id}`);
 
 		const updatedParams = params.slice();
 
@@ -54,20 +50,15 @@ const DefaultConsole = (props: ConsoleProps) => {
 		flexDirection: "column",
 	};
 
-	const labelStyle = {
-		size: "xs",
-		fw: "500",
-		c: "var(--mantine-color-dark-3)",
-		pb: "0.30rem",
-	};
 
 	const gap = mode === "COMPACT" ? "0.90rem" : "1.50rem";
+	const criteria = layout === "ROW" ? (p: any) => p.rank === 1 : (p: any) => p; // spit the sliders in 2 columns according to their rank value
 
 	return (
 		<div style={layout === "ROW" ? rowLayout : colLayout}>
 			<div style={{ width: "100%" }}>
 				{params
-					.filter((p: any) => p.rank === 1)
+					.filter(criteria)
 					.map((p: any) => (
 						<div
 							key={p.id}
@@ -78,41 +69,12 @@ const DefaultConsole = (props: ConsoleProps) => {
 							}}
 						>
 							<div style={{ width: "100%", paddingBottom: gap }}>
-								<Text
-									size={mode === "COMPACT" ? "0.65rem" : "xs"}
-									fw={mode === "COMPACT" ? "400" : "500"}
-									c={
-										mode === "COMPACT"
-											? "var(--mantine-color-dark-2)"
-											: "var(--mantine-color-dark-3)"
-									}
-									pb={mode === "COMPACT" ? "1rem" : "1rem"}
-								>
-									{p.label}
-								</Text>
-								<Slider
-									id={p.id}
-									name={p.id}
-									min={p.range[0]}
-									max={p.range[1]}
-									step={p.step}
-									onChange={(value) => {
-										handleSliderInput(value, p.id);
-									}}
-									value={p.value}
-									size="1px"
-									thumbSize={rem(12)}
-									color={dark}
-									showLabelOnHover={false}
-									pb={mode === "COMPACT" ? "0.25rem" : "0.75rem"}
-									styles={{ thumb: { backgroundColor: dark, borderWidth: 0 } }}
-									classNames={sliderStyles}
-								/>
+								<ControlSlider key={p.id} id={p.id} mode={mode} param={p} color={dark} onValueChange={handleSliderInput} />
 							</div>
 						</div>
 					))}
 			</div>
-			<div style={{ width: "100%" }}>
+			{layout === "ROW" && <div style={{ width: "100%" }}>
 				{params
 					.filter((p: any) => p.rank === 2)
 					.map((p: any) => (
@@ -125,40 +87,12 @@ const DefaultConsole = (props: ConsoleProps) => {
 							}}
 						>
 							<div style={{ width: "100%", paddingBottom: gap }}>
-								<Text
-									size={mode === "COMPACT" ? "0.65rem" : "xs"}
-									fw={mode === "COMPACT" ? "400" : "500"}
-									c={
-										mode === "COMPACT"
-											? "var(--mantine-color-dark-2)"
-											: "var(--mantine-color-dark-3)"
-									}
-									pb={mode === "COMPACT" ? "1rem" : "1rem"}
-								>
-									{p.label}
-								</Text>
-								<Slider
-									id={p.id}
-									name={p.id}
-									min={p.range[0]}
-									max={p.range[1]}
-									step={p.step}
-									onChange={(value) => {
-										handleSliderInput(value, p.id);
-									}}
-									value={p.value}
-									size="1px"
-									thumbSize={rem(12)}
-									color={dark}
-									showLabelOnHover={false}
-									pb={mode === "COMPACT" ? "0.25rem" : "0.75rem"}
-									styles={{ thumb: { backgroundColor: dark, borderWidth: 0 } }}
-									classNames={sliderStyles}
-								/>
+								<ControlSlider key={p.id} id={p.id} mode={mode} param={p} color={dark} onValueChange={handleSliderInput} />
 							</div>
 						</div>
 					))}
-			</div>
+			</div>}
+			
 		</div>
 	);
 };
