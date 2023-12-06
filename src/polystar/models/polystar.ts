@@ -1,27 +1,18 @@
-import { Point, Path } from "paper";
+import { Path } from "paper";
 
-import SpinalField from "../attractors/spinalField";
 import OrbitalField from "../attractors/orbitalField";
 import Spine from "../attractors/spine";
-import Orbital from "../attractors/orbital";
 
-import { curve, pull } from "../../lib/topo/tools/stitcher";
+import { pull } from "../../lib/topo/tools/stitcher";
 
 import {
-	markPoint,
-	traceSegment,
-	genRandomDec,
-	isEven,
 	normalize,
 } from "../../lib/topo/utils/helpers";
 import {
 	convertToHyperPoint,
 	convertToSegment,
 } from "../../lib/topo/utils/converters";
-import { retract } from "../../lib/topo/tools/stitcher";
 
-const DEBUG_GREEN = "#10FF0C";
-const GUIDES = "#06E7EF";
 
 class Polystar {
 	private _path: any;
@@ -30,7 +21,7 @@ class Polystar {
 	private _position: any;
 
 	private _hasFill: boolean = false;
-	private _color: string = "#10FF0C";
+	private _color: string = "#000000";
 
 	constructor(radius: number, position: any) {
 		this._radius = radius;

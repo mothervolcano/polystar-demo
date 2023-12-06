@@ -61,7 +61,6 @@ const Layout = ({ orientation, children }: any) => {
 // -------------------------------------------------------------------------------------------------------
 
 const UI = () => {
-	const containerRef = useRef<HTMLDivElement>(null);
 
 	const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
 	const [initialized, setInitialized] = useState<boolean>(false);
@@ -69,7 +68,7 @@ const UI = () => {
 	const [models, currentModel, setCurrentModel] = useModel();
 	const [paramsForConsole, setParamsForConsole] = useState<ParamSet | null>(null);
 	const [hasFill, setHasFill] = useState<boolean>(true);
-	const [artColor, setArtColor] = useState("10FF0C");
+	const [artColor, setArtColor] = useState("#000000");
 	const [scaleCtrl, setScaleCtrl] = useState(3);
 
 	const { shapeCollection, setShapeCollection } = useContext(ShapeContext);
@@ -85,7 +84,7 @@ const UI = () => {
 			return () => {};
 		}
 
-		console.log("1 --> PAPERJS LOADED! CurrentModel: ", currentModel);
+		console.log("1 --> PAPERJS LOADED! CurrentModel: ", artColor);
 
 		setParamsForConsole(currentModel.params);
 		const params = parseParams(currentModel.params);
@@ -114,6 +113,8 @@ const UI = () => {
 			console.log("PAPER ISN'T LOADED");
 			return () => {};
 		}
+
+		// console.log("1 --> Console Input! CurrentModel: ", artColor);
 
 		const params = parseParams(currentModel.params);
 

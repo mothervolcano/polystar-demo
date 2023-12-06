@@ -22,10 +22,6 @@ const PaperStage = ({ onPaperLoad, onResize }: any) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const size = useSize(containerRef);
 
-	if (size) {
-		console.log("resize observer: ", size.width);
-	}
-
 	useEffect(() => {
 		if (canvasRef.current !== null) {
 			paperScope.install(window);

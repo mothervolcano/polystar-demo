@@ -3,7 +3,6 @@ import { paperScope } from "./components/PaperStage";
 
 let view: any;
 let layer: any;
-let guides: any;
 
 let origin: any;
 
@@ -14,8 +13,6 @@ let model: any;
 
 function calculateOrigin(width: number, height: number) {
   const viewRatio = width / height;
-
-  console.log("view ratio: ", viewRatio, width )
 
   if (viewRatio <= 1.30 && width < 415) {
     return { x: width / 2, y: height - height * 0.45 };
@@ -43,7 +40,6 @@ export function reset() {
   paperScope.project.clear();
   view = paperScope.project.view;
   layer = new Layer();
-  guides = new Layer();
 }
 
 export function resize({ width, height }: { width: number; height: number }) {
