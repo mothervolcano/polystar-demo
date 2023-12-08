@@ -103,9 +103,9 @@ abstract class DisplayObject {
 	/**
 	 * Sets the position of the display frame.
 	 */
-	set position(input: any) {
-		this.placeAt(input);
-	}
+	// set position(input: any) {
+	// 	this.placeAt(input);
+	// }
 
 	/**
 	 * Gets the position of the display frame.
@@ -198,7 +198,9 @@ abstract class DisplayObject {
 	/**
 	 * Updates the display frame.
 	 */
-	protected update() {}
+	protected update(item: any) {
+		this._content = item;
+	}
 }
 
 export default DisplayObject;

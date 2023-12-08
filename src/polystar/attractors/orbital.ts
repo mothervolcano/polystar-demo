@@ -1,5 +1,5 @@
 import { TopoLocationData, TopoPoint } from '../../lib/topo/topo';
-import { TopoPath } from '../../lib/topo/drawing/paperjs';
+import { TopoOrbital, TopoPath } from '../../lib/topo/drawing/paperjs';
 import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
 
 import HyperPoint from '../../lib/topo/core/hyperPoint'
@@ -8,20 +8,13 @@ import AttractorTopo from '../../lib/topo/core/attractorTopo';
 
 class Orbital extends AttractorTopo {
 
-	
-	// private _debugPath1: any;
-	// private _debugPath2: any;
-	// private _debugPath3: any;
-	// private _debugPath4: any;
-	// private _arrow: any;
-
 	// private _fixedOrientation: boolean;
 
 	constructor(length: number, anchor?: HyperPoint ) {
 
 		const topoPath: TopoPath = new TopoPath()
 
-		// console.log('SPINE: ', topoPath)
+		// console.log('ORBITAL: ', topoPath)
 
 		super(topoPath, anchor);
 		this.setLength(length);
@@ -33,13 +26,12 @@ class Orbital extends AttractorTopo {
 		if (this.anchor) {
 
 			this.topo.reset();
-			const A: TopoPoint = this.anchor.point.subtract([this.length/2, 0]);
-			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
-			this.topo.add(A,B);
+			this.topo.visibility = true;
 
-			this.topo.visibility = false;
+			this.topo.createCircle(this.anchor, this.length/Math.PI/2);
+			this.topo.strokeColor = new paper.Color("blue");
 
-			// this.topo.strokeColor = new paper.Color("blue");
+			// this.topo.addOrientationArrow();
 		}
 	}
 
@@ -54,8 +46,6 @@ class Orbital extends AttractorTopo {
 	}
 
 	adjustToPosition() {
-
-		console.log('5 adjusting spine: ', this.anchor.position)
 
 		if (this.determineOrientation(this.anchor.position)) {
 			this.setAxisAngle(0);
@@ -81,9 +71,11 @@ class Orbital extends AttractorTopo {
 
 	adjustToSpin() {
 		if (this.determineSpin(this.anchor.position)) {
-			this.setSpin(1);
-		} else if (!this.determineSpin(this.anchor.position)) {
+			this.scale(-1, 1);
 			this.setSpin(-1);
+		} else if (!this.determineSpin(this.anchor.position)) {
+			this.scale(1, 1);
+			this.setSpin(1);
 		} else {
 			throw new Error("POSSIBLY TRYING TO PLACE THE ATTRACTOR OUTSIDE OF FIELDs BOUNDS");
 		}
@@ -139,52 +131,10 @@ class Orbital extends AttractorTopo {
 		const loc = this.topo.getLocationAt(this.topo.length * at);
 
 		return {
-			point: loc.point,
-			tangent: loc.tangent,
-			normal: loc.normal,
-			curveLength: loc.curve.length,
-			pathLength: loc.path.length,
+			...loc,
 			at: at,
 		};
 	}
-
-
-	// private addOrientationArrow() {
-
-	// 	this._debugPath1.remove();
-	// 	this._debugPath2.remove();
-	// 	this._debugPath3.remove();
-	// 	this._debugPath4.remove();
-
-	// 	this._arrow.remove();
-
-	// 	this._arrow = new Group();
-
-	// 	this._debugPath1 = new Path({ segments: [ this._path.segments[0], this._path.segments[1] ], strokeColor: '#70D9FF' });
-		
-	// 	let _A = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
-	// 	let _Ar = _A.rotate( 30, this._debugPath1.lastSegment.point );
-		
-	// 	let _B = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
-	// 	let _Br = _B.rotate( -40, this._debugPath1.lastSegment.point );
-
-	// 	this._debugPath2 = new Path( {
-	// 	                            segments: [ this._debugPath1.lastSegment.point, _Ar ],
-	// 	                            strokeColor: '#70D9FF' });
-		
-	// 	this._debugPath3 = new Path( {
-	// 	                            segments: [ this._debugPath1.lastSegment.point, _Br ],
-	// 	                            strokeColor: '#70D9FF' });
-
-	// 	this._debugPath4 = new Path.Circle({center: this._debugPath1.firstSegment.point, radius: 2, fillColor: '#70D9FF'});
-	
-
-	// 	this._arrow.addChild(this._debugPath1);
-	// 	this._arrow.addChild(this._debugPath2);
-	// 	this._arrow.addChild(this._debugPath3);
-	// 	this._arrow.addChild(this._debugPath4);
-
-	// }
 	
 }
 

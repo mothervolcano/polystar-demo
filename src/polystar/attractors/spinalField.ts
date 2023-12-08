@@ -11,19 +11,9 @@ class SpinalField extends AttractorField {
 	constructor(length: number, anchor?: HyperPoint, mode: string = "DIRECTED") {
 		const topoPath = new TopoPath();
 
-		if ( anchor ) {
-			const A: TopoPoint = anchor.point.subtract([length/2, 0]);
-			const B: TopoPoint = anchor.point.add([length/2, 0]);
-			topoPath.add(A,B);	
-		}
-
-		topoPath.visibility = false;
-
-		// topoPath.strokeColor = new paper.Color("black")
-
 		super(topoPath, anchor);
-
 		this.setLength(length);
+		this.draw();
 
 		this._mode = mode;
 
@@ -43,9 +33,9 @@ class SpinalField extends AttractorField {
 			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
 			this.topo.add(A,B);
 
-			this.topo.visibility = false;
+			this.topo.visibility = true;
 
-			// this.topo.strokeColor = new paper.Color("blue");
+			this.topo.strokeColor = new paper.Color("orange");
 		}
 	}
 
@@ -134,11 +124,7 @@ class SpinalField extends AttractorField {
 		const loc = this.topo.getLocationAt(this.topo.length * at);
 
 		return {
-			point: loc.point,
-			tangent: loc.tangent,
-			normal: loc.normal,
-			curveLength: loc.curve.length,
-			pathLength: loc.path.length,
+			...loc, 
 			at: at,
 		};
 	}

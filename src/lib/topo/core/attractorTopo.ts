@@ -62,7 +62,15 @@ abstract class AttractorTopo extends AttractorObject {
 		}
 	}
 
-	rotate(angle: number) {
+	public scale( hor: number, ver: number ) {
+
+		this.topo.scale( hor, ver );
+		this.setLength(this.topo.length);
+
+		return this;
+	};
+
+	public rotate(angle: number) {
 		if (!this.topo) {
 			throw new Error(`ERROR @AttractorObject.rotate(): path is missing!`);
 		}

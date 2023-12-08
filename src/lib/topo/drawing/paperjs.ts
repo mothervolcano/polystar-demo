@@ -21,16 +21,15 @@ function convertToPoint(obj: PointLike): paper.Point {
 }
 
 export function convertToHyperPoint(obj: PointLike | paper.Segment): HyperPoint {
-
     const pt = "point" in obj ? obj.point : obj;
-    
+
     const hIn = "handleIn" in obj && obj.handleIn ? obj.handleIn : null;
     const hOut = "handleOut" in obj && obj.handleOut ? obj.handleOut : null;
 
     const P = new HyperPoint(pt, hIn, hOut);
     P.spin = 1;
 
-    if ( "location" in obj ) { 
+    if ("location" in obj) {
         P.setTangent(obj.location.tangent);
         P.setNormal(obj.location.normal);
     }
@@ -61,7 +60,7 @@ export class TopoPoint {
         } else if (args.length === 1 && typeof args[0] === "object") {
             this._Point = new Point(args[0]);
         } else {
-            this._Point = new Point(args)
+            this._Point = new Point(args);
         }
     }
 
@@ -116,20 +115,25 @@ export class TopoPoint {
     }
 
     public subtract(arg: PointLike | number): TopoPoint {
-        return new TopoPoint (this._Point.subtract(arg));
+        return new TopoPoint(this._Point.subtract(arg));
     }
 
     public divide(arg: PointLike | number): TopoPoint {
         return new TopoPoint(this._Point.divide(arg));
     }
 
-    public modulo(arg: PointLike | number): TopoPoint{
+    public modulo(arg: PointLike | number): TopoPoint {
         return new TopoPoint(this._Point.modulo(arg));
     }
 }
 
-
 export class TopoPath extends DisplayObject {
+    private _debugPath1: any;
+    private _debugPath2: any;
+    private _debugPath3: any;
+    private _debugPath4: any;
+    private _arrow: paper.Group;
+
     protected _Path: paper.Path;
 
     constructor(...args: any[]) {
@@ -137,36 +141,49 @@ export class TopoPath extends DisplayObject {
             const paperPath = new Path();
             // super(paperPath.position);
             super(paperPath.position);
-            this.render(this);
             this._Path = paperPath;
         } else if (args.length === 1 && typeof args[0] === "object") {
             const paperPath = new Path(args[0]);
             // super(paperPath.position, paperPath.bounds.size);
             super(paperPath.position);
-            this.render(this);
             this._Path = paperPath;
         } else {
             const paperPath = new Path(...args);
             // super(paperPath.position, paperPath.bounds.size);
             super(paperPath.position);
-            this.render(this);
             this._Path = paperPath;
         }
+        this.render(this);
+
+        this._debugPath1 = new paper.Path();
+        this._debugPath2 = new paper.Path();
+        this._debugPath3 = new paper.Path();
+        this._debugPath4 = new paper.Path();
+        this._arrow = new paper.Group();
     }
 
+    // static Circle(center: PointLike, radius: number): TopoPath {
+
+    //     const topo = new TopoPath();
+    //     const path = new Path.Circle({center: center, radius: radius})
+    //     topo._Path = path as paper.Path;
+    //     topo.position = path.position;
+    //     return topo;
+    // }
+
     set fullySelected(value: boolean) {
-        this._Path.fullySelected = value; 
+        this._Path.fullySelected = value;
     }
 
     get fullySelected() {
-        return this._Path.fullySelected
+        return this._Path.fullySelected;
     }
 
     get size() {
         return this._Path.bounds.size;
     }
 
-    set position(value) {
+    set position(value: PointLike) {
         this._Path.position = convertToPaperPoint(value);
     }
 
@@ -219,30 +236,35 @@ export class TopoPath extends DisplayObject {
     }
 
     get points(): HyperPoint[] {
-        return this._Path.segments.map( sgm => convertToHyperPoint(sgm) );
+        return this._Path.segments.map((sgm) => convertToHyperPoint(sgm));
     }
 
     get firstPoint(): HyperPoint {
-
         return convertToHyperPoint(this._Path.firstSegment);
     }
 
     get lastPoint(): HyperPoint {
-
         return convertToHyperPoint(this._Path.lastSegment);
     }
 
-    public addPoint( pt: HyperPoint ) {
+    public createCircle(center: PointLike, radius: number) {
+        const path = new Path.Circle({ center: center, radius: radius });
+        this._Path = path;
+        // this.position = center;
+        this.placeAt(center);
 
-        const sgm = convertToPaperSegment(pt)
+        return this;
+    }
+
+    public addPoint(pt: HyperPoint) {
+        const sgm = convertToPaperSegment(pt);
 
         // console.log("adding point: ", pt.handleOut)
 
-        this._Path.add( sgm );
+        this._Path.add(sgm);
     }
 
     public add(...point: (HyperPoint | PointLike | number[])[]) {
-
         this._Path.add(...point);
     }
 
@@ -257,9 +279,14 @@ export class TopoPath extends DisplayObject {
     }
 
     public getLocationAt(offset: number): any {
-
         const locationData = this._Path.getLocationAt(offset);
-        const parsedLocationData = { ...locationData, point: new TopoPoint(locationData.point), tangent: new TopoPoint(locationData.tangent), normal: new TopoPoint(locationData.normal) }
+        const parsedLocationData = {
+            point: new TopoPoint(locationData.point),
+            tangent: new TopoPoint(locationData.tangent),
+            normal: new TopoPoint(locationData.normal),
+            curveLength: locationData.curve.length,
+            pathLength: locationData.path.length
+        };
 
         return parsedLocationData;
     }
@@ -269,12 +296,10 @@ export class TopoPath extends DisplayObject {
     }
 
     public scale(hor: number, ver: number, center?: PointLike) {
-
-        this._Path.scale(hor, ver, center)
+        this._Path.scale(hor, ver, center);
     }
 
     public rotate(angle: number, center?: PointLike) {
-
         this._Path.rotate(angle, center);
     }
 
@@ -292,29 +317,74 @@ export class TopoPath extends DisplayObject {
     public remove() {
         this._Path.remove();
     }
+
+    public addOrientationArrow() {
+
+        this._debugPath1.remove();
+        this._debugPath2.remove();
+        this._debugPath3.remove();
+        this._debugPath4.remove();
+        this._arrow.remove();
+
+        // this._debugPath1 = new paper.Path();
+        // this._debugPath2 = new paper.Path();
+        // this._debugPath3 = new paper.Path();
+        // this._debugPath4 = new paper.Path();
+        this._arrow = new paper.Group();
+
+        this._debugPath1 = new paper.Path({ segments: [ this._Path.segments[0], this._Path.segments[1] ], strokeColor: '#70D9FF' });
+        
+        let _A = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
+        let _Ar = _A.rotate( 30, this._debugPath1.lastSegment.point );
+        
+        let _B = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
+        let _Br = _B.rotate( -40, this._debugPath1.lastSegment.point );
+
+        this._debugPath2 = new paper.Path( {
+                                    segments: [ this._debugPath1.lastSegment.point, _Ar ],
+                                    strokeColor: '#70D9FF' });
+        
+        this._debugPath3 = new paper.Path( {
+                                    segments: [ this._debugPath1.lastSegment.point, _Br ],
+                                    strokeColor: '#70D9FF' });
+
+        this._debugPath4 = new paper.Path.Circle({center: this._debugPath1.firstSegment.point, radius: 2, fillColor: '#70D9FF'});
+    
+
+        this._arrow.addChild(this._debugPath1);
+        this._arrow.addChild(this._debugPath2);
+        this._arrow.addChild(this._debugPath3);
+        this._arrow.addChild(this._debugPath4);
+
+        // this._arrow.pivot = this._debugPath1.firstSegment.point;
+        // this._arrow.position = this._Path.position;
+        // this._debugPath1.transform(this._Path.matrix)
+
+        this.update(new Group( [this._Path, this._arrow] ) );
+
+    }
 }
 
-export class TopoOrbital extends TopoPath{
-
+export class TopoOrbital extends TopoPath {
     constructor(...args: any[]) {
         if (args.length === 1 && typeof args[0] === "object") {
-            super()
+            super();
             this._Path = new paper.Path.Circle(args[0]);
         } else {
-            super()
+            super();
             this._Path = new paper.Path.Circle(args);
         }
-        this.render(this);
+        super.render(this);
     }
 }
 
 export class Ellipse extends TopoPath {
     constructor(...args: any[]) {
         if (args.length === 1 && typeof args[0] === "object") {
-            super()
+            super();
             this._Path = new paper.Path.Ellipse(args[0]);
         } else {
-            super()
+            super();
             this._Path = new paper.Path.Ellipse(args);
         }
         this.render(this);
@@ -322,7 +392,6 @@ export class Ellipse extends TopoPath {
 }
 
 export class Group extends DisplayNode {
-
     private _Group: paper.Group;
 
     constructor(...args: any[]) {
@@ -376,7 +445,6 @@ export class Group extends DisplayNode {
     }
 
     public rotate(angle: number, center?: PointLike) {
-
         this._Group.rotate(angle, center);
     }
 

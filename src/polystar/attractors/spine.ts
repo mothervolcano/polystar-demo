@@ -27,9 +27,9 @@ class Spine extends AttractorTopo {
 			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
 			this.topo.add(A,B);
 
-			this.topo.visibility = false;
+			this.topo.visibility = true;
 
-			// this.topo.strokeColor = new paper.Color("blue");
+			this.topo.strokeColor = new paper.Color("blue");
 		}
 	}
 
@@ -44,8 +44,6 @@ class Spine extends AttractorTopo {
 	}
 
 	adjustToPosition() {
-
-		console.log('5 adjusting spine: ', this.anchor.position)
 
 		if (this.determineOrientation(this.anchor.position)) {
 			this.setAxisAngle(0);
@@ -101,11 +99,7 @@ class Spine extends AttractorTopo {
 		const loc = this.topo.getLocationAt(this.topo.length * at);
 
 		return {
-			point: loc.point,
-			tangent: loc.tangent,
-			normal: loc.normal,
-			curveLength: loc.curve.length,
-			pathLength: loc.path.length,
+			...loc,
 			at: at,
 		};
 	}

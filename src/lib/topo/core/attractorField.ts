@@ -152,6 +152,21 @@ abstract class AttractorField extends AttractorObject {
 		}
 	}
 
+	public scale( hor: number, ver: number ) {
+
+		for ( const att of this.filterAttractors() ) {
+
+			att.scale( hor, ver );
+		}
+
+		this.topo.scale( hor, ver );
+		this.setLength(this.topo.length);
+
+		this.update();
+
+		return this;
+	};
+
 	public rotate(angle: number) {
 
 		for ( const att of this.filterAttractors() ) {

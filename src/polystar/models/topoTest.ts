@@ -14,6 +14,11 @@ import {
 	convertToHyperPoint,
 	convertToSegment,
 } from "../../lib/topo/utils/converters";
+import Spine from "../attractors/spine";
+import { HyperPoint } from "../../lib/topo/topo";
+import Orbital from "../attractors/orbital";
+import OrbitalField from "../attractors/orbitalField";
+import SpinalField from "../attractors/spinalField";
 
 
 class TopoTest {
@@ -45,10 +50,50 @@ class TopoTest {
 			extendCtrl,
 		} = params;
 
-		// const sides = sideCtrl;
+		const sides = sideCtrl;
 
-		// const polyRadius = this._radius;
-		// const starRadius = polyRadius * Math.cos(Math.PI / sides);
+		const polyRadius = this._radius;
+		const starRadius = polyRadius * Math.cos(Math.PI / sides);
+		
+		const testOrbitalField = new OrbitalField(100*2*Math.PI, this._position);
+		const testSpinalField = new SpinalField(300, this._position);
+
+		const testSpine1 = new Spine(100, this._position);
+		const testSpine2 = new Spine(100, this._position);
+		const testSpine3 = new Spine(100, this._position);
+		const testOrbital1 = new Orbital(50*2*Math.PI, this._position);
+		const testOrbital2 = new Orbital(50*2*Math.PI, this._position);
+		const testOrbital3 = new Orbital(50*2*Math.PI, this._position);
+		const testOrbital4 = new Orbital(30*2*Math.PI, this._position);
+		const testOrbital5 = new Orbital(30*2*Math.PI, this._position);
+
+
+
+		testOrbitalField.addAttractor(testOrbital1);
+		testOrbitalField.addAttractor(testOrbital2);
+		testOrbitalField.addAttractor(testOrbital3);
+		testOrbitalField.addAttractor(testOrbital4);
+		testOrbitalField.addAttractor(testOrbital5);
+		// testOrbitalField.addAttractor(testSpine1);
+		// testOrbitalField.addAttractor(testSpine2);
+		// testOrbitalField.addAttractor(testSpine3);
+
+		// testSpinalField.addAttractor(testOrbital)
+		// testSpinalField.addAttractor(testSpine)
+
+
+		const pts = testOrbitalField.locate(0.25);
+		const pts2 = testOrbitalField.locate(0);
+
+		for ( const pt of pts ) {
+
+			new paper.Path.Circle({center: pt.point, radius: 3, fillColor: "green"})
+		}
+
+		for ( const pt of pts2 ) {
+
+			new paper.Path.Circle({center: pt.point, radius: 3, fillColor: "red"})
+		}
 
 		// const polyField = new OrbitalField(this._position, polyRadius);
 		// const starField = new OrbitalField(this._position, starRadius);

@@ -2,6 +2,7 @@ import { Dispatch, useReducer } from "react";
 import { Model, ParamSet } from "../polystar";
 
 import Polystar from "../polystar/models/polystar";
+import TopoTest from "../polystar/models/topoTest";
 import DefaultConsole from "../components/consoles/default";
 
 const defaultParams: ParamSet = [
@@ -69,6 +70,16 @@ const models: Model[] = [
     model: Polystar,
     console: DefaultConsole,
     params: defaultParams,
+    default: false,
+    checked: false,
+  },
+  {
+  option: "TEST",
+    label: "Topo Test",
+    icon: null,
+    model: TopoTest,
+    console: DefaultConsole,
+    params: defaultParams,
     default: true,
     checked: false,
   },
@@ -83,6 +94,10 @@ const modelReducer = (state: any, action: any) => {
         models.find((model: Model) => model.option === "POLYGON") || models[0];
       break;
     case "STAR":
+      selectedModel =
+        models.find((model: Model) => model.option === "STAR") || models[0];
+      break;
+    case "TEST":
       selectedModel =
         models.find((model: Model) => model.option === "STAR") || models[0];
       break;

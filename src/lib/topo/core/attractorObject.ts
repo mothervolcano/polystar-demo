@@ -160,6 +160,7 @@ abstract class AttractorObject {
 	abstract draw(): void;
 	abstract rotate(angle: number): void;
 	abstract moveBy( by: number, along: VectorDirection): void
+	abstract scale( hor: number, ver: number ): void;
 
 	// -----------------------------------------------------------------------------
 

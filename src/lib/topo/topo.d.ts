@@ -191,8 +191,11 @@ declare class TopoPath extends DisplayObject {
   firstPoint: HyperPoint;
   lastPoint: HyperPoint;
 
+  // static Circle(center: PointLike, radius: number): TopoPath
+
   constructor(...args: any[]);
 
+  createCircle(center: PointLike, radius: number): TopoPath;
   addPoint(point: HyperPoint): void;
   add(...point: (IHyperPoint | PointLike | number[])[]): void;
   insert(index: number, point: HyperPoint | PointLike): void;
@@ -204,6 +207,7 @@ declare class TopoPath extends DisplayObject {
   clone(): TopoPath
   reset(): void;
   remove(): void;
+  addOrientationArrow(): void;
 }
 
 export interface IGroup {
