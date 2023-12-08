@@ -1,5 +1,5 @@
 
-import { PointLike, SizeLike } from "../types";
+import { PointLike, SizeLike } from "../topo";
 import DisplayObject from "./displayObject";
 
 

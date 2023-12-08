@@ -1,22 +1,22 @@
-import { VectorDirection, IPoint, PointLike, IHyperPoint } from "../types";
+import { VectorDirection, PointLike } from "../topo";
 import { validatePointInput } from "../utils/converters";
 
-import { Point } from "../drawing/paperjs";
+import { TopoPoint } from "../drawing/paperjs";
 
-class HyperPoint implements IHyperPoint {
-	private _point: IPoint;
-	private _handleIn: IPoint;
-	private _handleOut: IPoint;
+class HyperPoint {
+	private _point: TopoPoint;
+	private _handleIn: TopoPoint;
+	private _handleOut: TopoPoint;
 
 	private _position: number;
 	private _spin: number;
 	private _polarity: number;
 
-	private AXIS: any = {
-		TAN: new Point(0,0),
-		RAY: new Point(0,0),
-		VER: new Point(0,0),
-		HOR: new Point(0,0),
+	private AXIS: { TAN: TopoPoint; RAY: TopoPoint; VER: TopoPoint; HOR: TopoPoint } = {
+		TAN: new TopoPoint(0, 0),
+		RAY: new TopoPoint(0, 0),
+		VER: new TopoPoint(0, 0),
+		HOR: new TopoPoint(0, 0),
 	};
 
 	// private _debugPath1: any
@@ -30,7 +30,7 @@ class HyperPoint implements IHyperPoint {
 	 * Creates a new HyperPoint instance.
 	 */
 
-	constructor(point: PointLike, handleIn: PointLike | null = null, handleOut: PointLike | null = null) {
+	constructor(point: PointLike, handleIn: PointLike = { x: 0, y: 0 }, handleOut: PointLike = {x: 0, y: 0}) {
 		this._point = validatePointInput(point);
 		this._handleIn = validatePointInput(handleIn);
 		this._handleOut = validatePointInput(handleOut);
@@ -79,11 +79,11 @@ class HyperPoint implements IHyperPoint {
 		return this._handleOut;
 	}
 
-	set handleIn(pt: any) {
+	set handleIn(pt: TopoPoint) {
 		this._handleIn = pt;
 	}
 
-	set handleOut(pt: any) {
+	set handleOut(pt: TopoPoint) {
 		this._handleOut = pt;
 	}
 
@@ -95,13 +95,10 @@ class HyperPoint implements IHyperPoint {
 
 		let a = value === 1 ? 0 : 180;
 
-		this.AXIS.HOR = new Point({ angle: a, length: 1 });
-		this.AXIS.VER = new Point({ angle: 90, length: 1 });
+		this.AXIS.HOR = new TopoPoint({ angle: a, length: 1 });
+		this.AXIS.VER = new TopoPoint({ angle: 90, length: 1 });
 
-		if (this.AXIS.TAN !== null) {
-			this.AXIS.TAN = this.AXIS.TAN.multiply(this._spin);
-		}
-		// if ( this.AXIS.RAY !== null ) { this.AXIS.RAY = this.AXIS.RAY.multiply(this._spin) }
+		this.AXIS.TAN = this.AXIS.TAN.multiply(this._spin);
 	}
 
 	set polarity(value: number) {
@@ -120,7 +117,7 @@ class HyperPoint implements IHyperPoint {
 		return this._polarity;
 	}
 
-	set tangent(point: any) {
+	setTangent(point: TopoPoint) {
 		this.AXIS.TAN = point.normalize();
 		// this.AXIS.TAN = this._spin === -1 ? point : point.multiply(this._spin);
 
@@ -128,18 +125,18 @@ class HyperPoint implements IHyperPoint {
 		// this._handleIn = this.AXIS.TAN * -1
 	}
 
-	set normal(point: any) {
+	getTangent(): TopoPoint {
+		return this.AXIS.TAN;
+	}
+
+	setNormal(point: TopoPoint) {
 		this.AXIS.RAY = point.normalize();
 		// this.AXIS.RAY = this._spin === -1 ? point.multiply(this._spin) : point;
 
 		// this.AXIS.RAY = point.multiply(-1)
 	}
 
-	get tangent() {
-		return this.AXIS.TAN;
-	}
-
-	get normal() {
+	getNormal(): TopoPoint {
 		return this.AXIS.RAY;
 	}
 
@@ -171,19 +168,20 @@ class HyperPoint implements IHyperPoint {
 	public steer(tilt: number, aperture: number = 180, hScale: number = 1): HyperPoint {
 		const axis = this.AXIS.RAY.angle + tilt * this._spin;
 
-		this._handleOut = new Point({
+		this._handleOut = new TopoPoint({
 			angle: axis + (aperture / 2) * this._spin,
 			length: this._handleOut.length * hScale,
 		});
-		this._handleIn = new Point({
+
+		this._handleIn = new TopoPoint({
 			angle: axis - (aperture / 2) * this._spin,
 			length: this._handleIn.length * hScale,
 		});
 
-		this.tangent = this._handleOut;
-		this.normal = this.tangent.rotate(-90, this.tangent.point);
-		this.tangent.normalize();
-		this.normal.normalize();
+		this.AXIS.TAN = this._handleOut;
+		this.AXIS.RAY = this.AXIS.TAN.rotate(-90, this.point);
+		this.AXIS.TAN.normalize();
+		this.AXIS.RAY.normalize();
 
 		// this._handleOut.angle += ( tilt )
 		// this._handleIn.angle += ( tilt )
@@ -213,10 +211,10 @@ class HyperPoint implements IHyperPoint {
 		_clone.spin = this._spin;
 
 		_clone.AXIS = {
-			TAN: this.AXIS.TAN ? this.AXIS.TAN.clone() : null,
-			RAY: this.AXIS.RAY ? this.AXIS.RAY.clone() : null,
-			VER: this.AXIS.VER ? this.AXIS.VER.clone() : null,
-			HOR: this.AXIS.HOR ? this.AXIS.HOR.clone() : null,
+			TAN: this.AXIS.TAN.clone(),
+			RAY: this.AXIS.RAY.clone(),
+			VER: this.AXIS.VER.clone(),
+			HOR: this.AXIS.HOR.clone(),
 		};
 
 		return _clone;

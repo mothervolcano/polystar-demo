@@ -1,7 +1,7 @@
 
-import { IGroup, IPath, IPoint, PointLike, SizeLike } from "../types";
+import { IGroup, TopoPath, PointLike, SizeLike } from "../topo";
 import { validatePointInput, validateSizeInput } from "../utils/converters";
-import { Point } from "../drawing/paperjs";
+import { TopoPoint } from "../drawing/paperjs";
 
 
 /**
@@ -11,8 +11,8 @@ import { Point } from "../drawing/paperjs";
 abstract class DisplayObject {
 	public isRendered: boolean;
 	public isRemoved: boolean;
-	protected _content: IPath | IGroup | null;
-	protected _position: IPoint;
+	protected _content: TopoPath | IGroup | null;
+	protected _position: TopoPoint;
 	private _size: SizeLike;
 
 	/**
@@ -110,7 +110,7 @@ abstract class DisplayObject {
 	/**
 	 * Gets the position of the display frame.
 	 */
-	get position(): any {
+	get position(): PointLike {
 		return this._position;
 	}
 
@@ -133,7 +133,7 @@ abstract class DisplayObject {
 	 * Gets the size of the display frame.
 	 */
 
-	get size(): any {
+	get size(): SizeLike {
 		return this._size;
 	}
 
@@ -157,7 +157,7 @@ abstract class DisplayObject {
 	 * Renders the display frame with the specified item.
 	 */
 
-	protected render(item: IPath | IGroup): void {
+	protected render(item: TopoPath | IGroup): void {
 		if (item && !this.isRendered) {
 			this._content = item;
 			this._content.visibility = true;

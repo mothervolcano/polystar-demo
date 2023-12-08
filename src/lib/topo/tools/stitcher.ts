@@ -1,10 +1,10 @@
 // import { Point } from 'paper';
-import { Point } from "../drawing/paperjs";
+import { TopoPoint } from "../drawing/paperjs";
 
 import HyperPoint from "../core/hyperPoint";
 
 import { convertToHyperPoint, convertToPoint, convertToSegment } from "../utils/converters";
-import { BooleanLike, IHyperPoint } from "../types";
+import { BooleanLike, HyperPoint as HyperPointType  } from "../topo";
 
 export function measure(hpt1: any, hpt2: any, ratio: number = 1) {
 	const A = convertToPoint(hpt1);
@@ -17,39 +17,39 @@ export function merge(hpt1: any, hpt2: any) {
 	const hpt = new HyperPoint(hpt1.point, hpt1.handleIn, hpt2.handleOut);
 
 	hpt.position = hpt1.position;
-	hpt.tangent = hpt1.tangent;
-	hpt.normal = hpt1.normal;
+	hpt.setTangent(hpt1.getTangent());
+	hpt.setNormal(hpt1.getNormal());
 	hpt.spin = hpt1.spin;
 	hpt.polarity = hpt1.polarity;
 
 	return hpt;
 }
 
-export function pull(hpt: IHyperPoint, length: number) {
+export function pull(hpt: HyperPointType, length: number) {
 	hpt.handleIn.length = length;
 	hpt.handleOut.length = length;
 }
 
-export function breakOut(hpt: any, angle: number) {
+export function breakOut(hpt: HyperPointType, angle: number) {
 	hpt.handleOut.angle += angle;
 }
 
-export function breakIn(hpt: any, angle: number) {
+export function breakIn(hpt: HyperPointType, angle: number) {
 	hpt.handleIn.angle += angle;
 }
 
-export function iron(hpt1: any, hpt2: any) {
-	hpt1.handleOut = null;
-	hpt2.handleIn = null;
+export function iron(hpt1: HyperPointType, hpt2: any) {
+	hpt1.handleOut = new TopoPoint({x:0, y:0});
+	hpt2.handleIn = new TopoPoint({x:0, y:0});
 }
 
-export function retract(hpt: any) {
+export function retract(hpt: HyperPointType) {
 	hpt.handleIn.length = 0;
 	hpt.handleOut.length = 0;
 }
 
 export function scaleHandles(
-	hpt: IHyperPoint,
+	hpt: HyperPoint,
 	scale: number,
 	scaleIn: BooleanLike = true,
 	scaleOut: BooleanLike = true,
@@ -124,17 +124,17 @@ export function mid(hpt1: any, hpt2: any) {
 	const A = convertToPoint(hpt1);
 	const B = convertToPoint(hpt2);
 
-	const _P = A.add(new Point((B.x - A.x) / 2, (B.y - A.y) / 2));
+	const _P = A.add(new TopoPoint((B.x - A.x) / 2, (B.y - A.y) / 2));
 
 	const P = convertToHyperPoint(_P);
 
-	P.tangent = new Point((B.x - _P.x) / 3, (B.y - _P.y) / 3);
-	P.tangent.normalize();
-	P.normal = P.tangent.rotate(-90, P.point);
-	P.normal.normalize();
+	P.setTangent(new TopoPoint((B.x - _P.x) / 3, (B.y - _P.y) / 3)); 
+	P.getTangent().normalize();
+	P.setNormal(P.getTangent().rotate(-90, P.point));
+	P.getNormal().normalize();
 
-	P.handleIn = new Point((B.x - _P.x) / 3, (B.y - _P.y) / 3);
-	P.handleOut = new Point((A.x - _P.x) / 3, (A.y - _P.y) / 3);
+	P.handleIn = new TopoPoint((B.x - _P.x) / 3, (B.y - _P.y) / 3);
+	P.handleOut = new TopoPoint((A.x - _P.x) / 3, (A.y - _P.y) / 3);
 
 	return P;
 }

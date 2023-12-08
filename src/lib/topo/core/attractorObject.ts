@@ -1,9 +1,9 @@
-import { IAttractor, IAttractorField, IHyperPoint, IPath, TopoLocationData, VectorDirection } from "../types";
+import { TopoLocationData, VectorDirection, TopoPath, HyperPoint, AttractorField } from "../topo";
 
 abstract class AttractorObject {
-	private _topo: IPath | null;
-	private _anchor: IHyperPoint | null = null;
-	private _field: IAttractorField | null = null;
+	private _topo: TopoPath;
+	private _anchor: HyperPoint | null = null;
+	private _field: AttractorField | null = null;
 
 	//------------------------------------
 	// PROPERTIES
@@ -25,12 +25,12 @@ abstract class AttractorObject {
 	private _determinePolarity: Function = () => {};
 	private _determineOrientation: Function = () => {};
 
-	constructor(aTopo: IPath, aAnchor?: IHyperPoint) {
+	constructor(aTopo: TopoPath, aAnchor?: HyperPoint) {
 		this._topo = aTopo;
 		this._anchor = aAnchor || null;
 	}
 
-	setTopo( aTopo: IPath ) {
+	setTopo( aTopo: TopoPath ) {
 		this._topo = aTopo;
 	}
 
@@ -58,7 +58,7 @@ abstract class AttractorObject {
 		this._determinePolarity = fn;
 	}
  
-	get anchor(): IHyperPoint {
+	get anchor(): HyperPoint {
 		if (!this._anchor) {
 			throw new Error(`Attractor is without anchor`);
 		}
@@ -66,11 +66,11 @@ abstract class AttractorObject {
 		return this._anchor;
 	}
 
-	get topo(): IPath {
+	get topo(): TopoPath {
 		return this._topo;
 	}
 
-	get field(): IAttractorField | null {
+	get field(): AttractorField | null {
 		return this._field;
 	}
 
@@ -102,17 +102,17 @@ abstract class AttractorObject {
 		return this._skip;
 	}
 
-	public addAttractor(aAttractor: IAttractor): IAttractor {
+	public addAttractor(aAttractor: AttractorObject): AttractorObject {
 		throw new Error("addAttractor method is only available on AttractorFields");
 	}
 
-	public getAttractor(i: number): IAttractor {
+	public getAttractor(i: number): AttractorObject {
 		throw new Error("getAttractor method is only available on AttractorFields");
 	}
 
-	abstract anchorAt(aAnchor: IHyperPoint, along?: VectorDirection): void;
+	abstract anchorAt(aAnchor: HyperPoint, along?: VectorDirection): void;
 
-	setField(aAttractorField: IAttractorField): void {
+	setField(aAttractorField: AttractorField): void {
 		this._field = aAttractorField;
 	}
 
@@ -144,24 +144,26 @@ abstract class AttractorObject {
 		this._skip = value;
 	}
 
-	abstract update(anchor?: IHyperPoint): void;
+	abstract update(anchor?: HyperPoint): void;
 
+	abstract configureAttractor(): void;
 	abstract adjustToPosition(): void;
 	abstract adjustToSpin(): void;
 	abstract adjustToPolarity(): void;
 
-	abstract locate(at: number, orient?: boolean): IHyperPoint | IHyperPoint[];
+	abstract locate(at: number, orient?: boolean): HyperPoint | HyperPoint[];
 	abstract getTopoLocationAt(at: number): TopoLocationData;
-	abstract createAnchor(topoLocationData: TopoLocationData): IHyperPoint;
+	abstract createAnchor(topoLocationData: TopoLocationData): HyperPoint;
 
 	// -----------------------------------------------------------------------------
 	
 	abstract draw(): void;
 	abstract rotate(angle: number): void;
+	abstract moveBy( by: number, along: VectorDirection): void
 
 	// -----------------------------------------------------------------------------
 
-	setAnchor(aAnchor?: IHyperPoint) {
+	setAnchor(aAnchor?: HyperPoint) {
 		if (aAnchor) this._anchor = aAnchor;
 	}
 }

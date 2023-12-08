@@ -1,76 +1,113 @@
-import { IHyperPoint, PointLike, SizeLike } from "../../lib/topo/types";
-
-import { validatePointInput, validateSizeInput } from "../../lib/topo/utils/converters";
+import { TopoPoint, TopoLocationData } from "../../lib/topo/topo";
 import AttractorField from "../../lib/topo/core/attractorField";
-import Orbital from "./orbital";
-
-import DebugDot from "../../lib/topo/utils/debugDot";
+import HyperPoint from "../../lib/topo/core/hyperPoint";
+import { TopoPath } from "../../lib/topo/drawing/paperjs";
+import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
 
 class OrbitalField extends AttractorField {
-	constructor(
-		position: IHyperPoint | null,
-		radius: SizeLike | number,
-		orientation: number = 1,
-		polarity: number = 1,
-	) {
-		super(validatePointInput(position), validateSizeInput(radius), orientation, polarity);
+	constructor(length: number, anchor?: HyperPoint) {
+		const topoPath = new TopoPath();
 
-		this.render();
-
-		return this;
-	}
-
-	protected render() {
-		if (this.isRendered) {
-			this._content.remove();
-			this.isRendered = false;
+		if (anchor) {
+			const A: TopoPoint = anchor.point.subtract([length / 2, 0]);
+			const B: TopoPoint = anchor.point.add([length / 2, 0]);
+			topoPath.add(A, B);
 		}
 
-		this._attractor = new Orbital(this.size, this.position);
-		this._attractor.orientation = this._orientation;
-		this._attractor.polarity = this._polarity;
+		topoPath.visibility = false;
 
-		/*DEBUG*/
-		// this._attractor.getPath().strokeColor = '#FFE44F';
+		// topoPath.strokeColor = new paper.Color("black")
 
-		this.arrangeAttractors(this.filterAttractors());
+		super(topoPath, anchor);
 
-		super.render(this._attractor._content);
+		this.setLength(length);
+
+		this.configureAttractor();
 	}
 
-	// protected adjustRotationToPosition( position: number ) {
+	draw() {
 
-	// 	if ( position > 0.25 && position < 0.75 ) {
+		if (this.anchor) {
 
-	// 		return 0;
+			this.topo.reset();
+			const A: TopoPoint = this.anchor.point.subtract([this.length/2, 0]);
+			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
+			this.topo.add(A,B);
 
-	// 	} else {
+			this.topo.visibility = false;
 
-	// 		return -180;
-	// 	}
-	// };
-
-	protected calculateOrientation(att: any, anchor: IHyperPoint) {
-		att.adjustToOrientation(anchor);
+			// this.topo.strokeColor = new paper.Color("blue");
+		}
 	}
 
-	protected calculatePolarity(att: any, anchor: IHyperPoint) {
-		att.adjustToPolarity(anchor);
+	configureAttractor() {
+		this.setOrientationDeterminator((pos: number) => {
+			return pos > 0.25 && pos < 0.75;
+		});
+		this.setSpinDeterminator((pos: number) => {
+			return pos > 0.25 && pos < 0.75;
+		});
 	}
 
-	protected calculateRotation(att: any, anchor: IHyperPoint) {
-		// if ( anchor.position > 0.25 && anchor.position < 0.75 ) {
+	adjustToPosition() {
+		if (this.determineOrientation(this.anchor.position)) {
+			this.setAxisAngle(0);
+		} else if (!this.determineOrientation(this.anchor.position)) {
+			this.setAxisAngle(180);
+		} else {
+			throw new Error("POSSIBLY TRYING TO ANCHOR OUTSIDE OF FIELDs BOUNDS");
+		}
+	}
 
-		// 	// axisAngle = anchor.normal.angle;
-		// 	axisAngle = 0;
+	adjustToSpin() {
+		if (this.determineSpin(this.anchor.position)) {
+			this.setSpin(1);
+		} else if (!this.determineSpin(this.anchor.position)) {
+			this.setSpin(-1);
+		} else {
+			throw new Error("POSSIBLY TRYING TO PLACE THE ATTRACTOR OUTSIDE OF FIELDs BOUNDS");
+		}
+	}
 
-		// } else {
+	adjustToPolarity() {
+		// TODO
 
-		// 	// axisAngle = anchor.normal.angle-180;
-		// 	axisAngle = -180;
-		// }
+		this.setPolarity(1);
+	}
 
-		return att.adjustRotationToPosition(anchor.position);
+	// at is provided by attractors that have paths that are non-linear ie. the input location doesn't match the mapped location.
+	createAnchor({ point, tangent, normal, curveLength, pathLength, at }: TopoLocationData): HyperPoint {
+		const factor = [0, 0.25, 0.5, 0.75].includes(at) ? 1 / 3 : curveLength / pathLength;
+
+		const hIn = tangent.multiply(curveLength * factor).multiply(-1);
+		const hOut = tangent.multiply(curveLength * factor);
+
+		const anchor = new HyperPoint(point, hIn, hOut);
+
+		anchor.position = at;
+		anchor.setTangent( new CreateTopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
+		anchor.setNormal( new CreateTopoPoint(normal.multiply(this.spin)) );
+		anchor.spin = this.spin;
+		anchor.polarity = this.polarity;
+
+		return anchor;
+	}
+
+	getTopoLocationAt(at: number): TopoLocationData {
+		if (!this.topo) {
+			throw new Error(`ERROR @Spine.getTopoLocationAt(${at}) ! Topo path is missing`);
+		}
+
+		const loc = this.topo.getLocationAt(this.topo.length * at);
+
+		return {
+			point: loc.point,
+			tangent: loc.tangent,
+			normal: loc.normal,
+			curveLength: loc.curve.length,
+			pathLength: loc.path.length,
+			at: at,
+		};
 	}
 }
 

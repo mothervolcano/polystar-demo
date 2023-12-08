@@ -1,5 +1,3 @@
-import { Path } from "paper";
-
 import OrbitalField from "../attractors/orbitalField";
 import Spine from "../attractors/spine";
 
@@ -12,6 +10,7 @@ import {
 	convertToHyperPoint,
 	convertToSegment,
 } from "../../lib/topo/utils/converters";
+import { TopoPath } from "../../lib/topo/drawing/paperjs";
 
 
 class Polystar {
@@ -48,8 +47,8 @@ class Polystar {
 		const polyRadius = this._radius;
 		const starRadius = polyRadius * Math.cos(Math.PI / sides);
 
-		const polyField = new OrbitalField(this._position, polyRadius);
-		const starField = new OrbitalField(this._position, starRadius);
+		const polyField = new OrbitalField(polyRadius, this._position );
+		const starField = new OrbitalField(starRadius, this._position );
 
 		polyField.rotate(90)
 		starField.rotate(90)
@@ -130,7 +129,7 @@ class Polystar {
 			pt.steer(90);
 		}
 
-		this._path = new Path({
+		this._path = new TopoPath({
 			fillColor: this._hasFill ? this._color : null,
 			strokeColor: this._hasFill ? null : this._color,
 			closed: true,

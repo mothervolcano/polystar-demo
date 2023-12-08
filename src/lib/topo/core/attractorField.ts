@@ -1,8 +1,8 @@
-import { IAttractor, IAttractorField, IHyperPoint, IPath, VectorDirection } from "../types";
+import { TopoPath, HyperPoint, VectorDirection } from "../topo";
 import AttractorObject from "./attractorObject";
 
 abstract class AttractorField extends AttractorObject {
-	private _attractors: IAttractor[] = [];
+	private _attractors: AttractorObject[] = [];
 
 	//--------------------------------
 	// PROPERTIES
@@ -10,13 +10,13 @@ abstract class AttractorField extends AttractorObject {
 	private _span: [number, number] = [0, 1];
 	private _shift: number = 0;
 
-	constructor(topo: IPath, anchor?: IHyperPoint) {
+	constructor(topo: TopoPath, anchor?: HyperPoint) {
 		super(topo, anchor);
 
 		return this;
 	}
 
-	public addAttractor(att: IAttractor, at?: number): IAttractor {
+	public addAttractor(att: AttractorObject, at?: number): AttractorObject {
 		this._attractors.push(att);
 
 		att.setField(this);
@@ -34,7 +34,7 @@ abstract class AttractorField extends AttractorObject {
 		return att;
 	}
 
-	public addAttractors(attractors: IAttractor[]): void {
+	public addAttractors(attractors: AttractorObject[]): void {
 		this._attractors = [...this._attractors, ...attractors.map( (att) => {
 			att.setField(this);
 			att.configureAttractor();
@@ -91,11 +91,11 @@ abstract class AttractorField extends AttractorObject {
 		}
 	}
 
-	getAttractor(i: number): IAttractor {
+	getAttractor(i: number): AttractorObject {
 		return this._attractors[i];
 	}
 
-	anchorAt(anchor: IHyperPoint, along: VectorDirection = "RAY"): void {
+	anchorAt(anchor: HyperPoint, along: VectorDirection = "RAY"): void {
 		if (!this.topo) {
 			throw new Error(`ERROR @AttractorTopo.anchorAt(...): path is missing!`);
 		}
@@ -105,18 +105,18 @@ abstract class AttractorField extends AttractorObject {
 
 		if (!this.axisLocked) {
 			if (along === "TAN") {
-				if (!anchor.tangent) {
+				if (!anchor.getTangent()) {
 					throw new Error("Attractor anchor missing tangent vector");
 				}
 
 				// this._content.rotation = anchor.tangent.angle;
-				this.topo.rotation = anchor.tangent.angle;
+				this.topo.rotation = anchor.getTangent().angle;
 			} else {
-				if (!anchor.normal) {
+				if (!anchor.getNormal()) {
 					throw new Error("Attractor anchor missing normal vector");
 				}
 				// this._content.rotation = anchor.normal.angle;
-				this.topo.rotation = anchor.normal.angle;
+				this.topo.rotation = anchor.getNormal().angle;
 			}
 		}
 
@@ -124,7 +124,7 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 
-	locate(at: number, orient: boolean = false): IHyperPoint[] {
+	locate(at: number, orient: boolean = false): HyperPoint[] {
 		const attractors = this.filterAttractors();
 		const anchors = attractors.filter((att) => !att.skip).map((att) => att.locate(at, orient));
 
@@ -132,7 +132,7 @@ abstract class AttractorField extends AttractorObject {
 		return anchors.flat();
 	}
 
-	locateOn(iAttractor: number, at: number, orient: boolean = false): IHyperPoint {
+	locateOn(iAttractor: number, at: number, orient: boolean = false): HyperPoint | HyperPoint[] {
 		return this.getAttractor(iAttractor).locate(at, orient);
 	}
 
@@ -152,8 +152,55 @@ abstract class AttractorField extends AttractorObject {
 		}
 	}
 
-	rotate(angle: number) {
+	public rotate(angle: number) {
 
+		for ( const att of this.filterAttractors() ) {
+
+			att.rotate( angle * att.spin );
+		}
+
+		return this;
+	}
+
+	public moveBy( by: number, along: VectorDirection ) {
+
+		this.anchor.offsetBy( by, along );
+
+		this.topo.placeAt( this.anchor.point );
+
+		return this;
+	};
+
+	public revolve( angle: number ) {
+
+		const delta = angle; // TODO angles need to be normalized to 0... 1
+
+		this._shift = delta;
+
+		this.update();
+
+		return this;
+	}
+
+	public compress( start: number, end: number, alignAxis: boolean = true ) {
+
+		this._span = [ start, end ];
+
+		const attractors = this.filterAttractors().map( (att) => { att.setAxisLocked(alignAxis); return att } );
+
+		this.update();
+
+		return this;
+	}
+
+	public expandBy( by: number, along: VectorDirection ) {
+
+		for ( const att of this.filterAttractors() ) {
+
+			att.moveBy( by, along );
+		}
+
+		return this;
 	}
 
 	remove() {}

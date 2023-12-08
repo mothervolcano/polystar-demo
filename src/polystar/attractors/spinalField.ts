@@ -1,110 +1,147 @@
-import { PathLocationData, UnitIntervalNumber, IHyperPoint, PointLike, SizeLike } from '../../lib/topo/types';
-
-import AttractorField from '../../lib/topo/core/attractorField';
-import Spine from './spine';
-import Orbital from './orbital';
-
-import { isEven } from '../../lib/topo/utils/helpers';
-
-
+import { TopoPoint, TopoLocationData } from "../../lib/topo/topo";
+import AttractorField from "../../lib/topo/core/attractorField";
+import HyperPoint from "../../lib/topo/core/hyperPoint";
+import { TopoPath } from "../../lib/topo/drawing/paperjs";
+import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
 
 class SpinalField extends AttractorField {
-
-	private _positionData: any;
-
-	private _length: number;
+	private _alternator: boolean = false;
 	private _mode: string;
-	
-	
-	constructor( positionData: PointLike, length: number | null, orientation: number = 1, polarity: number = 1, mode: string = 'ALTERNATED' ) {
 
-		const _path = Spine.project( positionData, length )
+	constructor(length: number, anchor?: HyperPoint, mode: string = "DIRECTED") {
+		const topoPath = new TopoPath();
 
-		super( _path.getPointAt( _path.length/2 ), _path.bounds.size, orientation, polarity )
+		if ( anchor ) {
+			const A: TopoPoint = anchor.point.subtract([length/2, 0]);
+			const B: TopoPoint = anchor.point.add([length/2, 0]);
+			topoPath.add(A,B);	
+		}
 
-		this._positionData = positionData;
+		topoPath.visibility = false;
 
-		this._length = _path.length;
+		// topoPath.strokeColor = new paper.Color("black")
+
+		super(topoPath, anchor);
+
+		this.setLength(length);
+
 		this._mode = mode;
 
-		this.render();
+		this.configureAttractor();
+	}
 
-		return this;
-	};
+	private alternate() {
+		this._alternator = !this._alternator;
+	}
 
+	draw() {
 
-	protected render() {
+		if (this.anchor) {
 
-		if ( this.isRendered ) {
+			this.topo.reset();
+			const A: TopoPoint = this.anchor.point.subtract([this.length/2, 0]);
+			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
+			this.topo.add(A,B);
 
-			this._content.remove();
-			this.isRendered = false;
+			this.topo.visibility = false;
+
+			// this.topo.strokeColor = new paper.Color("blue");
 		}
+	}
 
-		this._attractor = new Spine( this._length, this._positionData );
-		this._attractor.orientation = this.orientation;
-		this._attractor.polarity = this.polarity;
+	configureAttractor() {
+		switch (this._mode) {
+			case "SYMMETRICAL":
+				this.setOrientationDeterminator((pos: number) => {
+					return pos < 0.5;
+				});
+				this.setSpinDeterminator((pos: number) => {
+					return pos < 0.5;
+				});
+				break;
 
-		this.arrangeAttractors( this.filterAttractors() );
+			case "ALTERNATED": // TODO: need to know the order of each att
+				this.alternate();
+				this.setOrientationDeterminator((pos: number) => {
+					return !this._alternator;
+				});
+				this.setSpinDeterminator((pos: number) => {
+					return this._alternator;
+				});
 
-		super.render( this._attractor._content );
+				break;
 
-	};
+			case "DIRECTED":
+				this.setOrientationDeterminator((pos: number) => {
+					return pos >= 0;
+				});
+				this.setSpinDeterminator((pos: number) => {
+					return pos >= 0;
+				});
+				break;
+		}
+	}
 
-
-	protected calculateOrientation( att: any, anchor: any ) {
-
-		att.adjustToOrientation( anchor );
-
-		// if ( isEven(i) ) {
-
-		// 	return this.orientation;
-
-		// } else {
-
-		// 	return this._mode === 'DIRECTED' ? this.orientation : this.orientation * -1;
-		// }
-	};
-
-
-	protected calculatePolarity( att: any, anchor: any ) {
-
-		att.adjustToPolarity( anchor );
-	};
-
-
-	protected calculateRotation( i: number, anchor: any ) {
-
-		if ( isEven(i) ) {
-
-			return 0;
-
+	adjustToPosition() {
+		if (this.determineOrientation(this.anchor.position)) {
+			this.setAxisAngle(0);
+		} else if (!this.determineOrientation(this.anchor.position)) {
+			this.setAxisAngle(180);
 		} else {
-
-			return this._mode === 'DIRECTED' ? 0 : 180;
+			throw new Error("POSSIBLY TRYING TO ANCHOR OUTSIDE OF FIELDs BOUNDS");
 		}
-	};
+	}
 
+	adjustToSpin() {
+		if (this.determineSpin(this.anchor.position)) {
+			this.setSpin(1);
+		} else if (!this.determineSpin(this.anchor.position)) {
+			this.setSpin(-1);
+		} else {
+			throw new Error("POSSIBLY TRYING TO PLACE THE ATTRACTOR OUTSIDE OF FIELDs BOUNDS");
+		}
+	}
 
-	set mode( value: string ) {
+	adjustToPolarity() {
+		// TODO
 
-		this._mode = value;
-	};
+		this.setPolarity(1);
+	}
 
-	get mode() {
+	// at is provided by attractors that have paths that are non-linear ie. the input location doesn't match the mapped location.
+	createAnchor({ point, tangent, normal, curveLength, pathLength, at }: TopoLocationData): HyperPoint {
+		const factor = [0, 0.25, 0.5, 0.75].includes(at) ? 1 / 3 : curveLength / pathLength;
 
-		return this._mode;
-	};
+		const hIn = tangent.multiply(curveLength * factor).multiply(-1);
+		const hOut = tangent.multiply(curveLength * factor);
 
-	get length() {
+		const anchor = new HyperPoint(point, hIn, hOut);
 
-		return this._length;
-	};
+		anchor.position = at;
+		anchor.setTangent( new CreateTopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
+		anchor.setNormal( new CreateTopoPoint(normal.multiply(this.spin)) );
+		anchor.spin = this.spin;
+		anchor.polarity = this.polarity;
 
+		return anchor;
+	}
+
+	getTopoLocationAt(at: number): TopoLocationData {
+		if (!this.topo) {
+			throw new Error(`ERROR @Spine.getTopoLocationAt(${at}) ! Topo path is missing`);
+		}
+
+		const loc = this.topo.getLocationAt(this.topo.length * at);
+
+		return {
+			point: loc.point,
+			tangent: loc.tangent,
+			normal: loc.normal,
+			curveLength: loc.curve.length,
+			pathLength: loc.path.length,
+			at: at,
+		};
+	}
 }
 
-
-export default SpinalField
-
-
-
+export default SpinalField;
