@@ -1,409 +1,162 @@
-import { UnitIntervalNumber, PointLike, SizeLike } from '../types';
+import { IAttractor, IAttractorField, IHyperPoint, IPath, VectorDirection } from "../types";
+import AttractorObject from "./attractorObject";
 
-import DisplayNode from './displayNode';
-import AttractorObject from './attractorObject';
-import HyperPoint from './hyperPoint';
+abstract class AttractorField extends AttractorObject {
+	private _attractors: IAttractor[] = [];
 
+	//--------------------------------
+	// PROPERTIES
 
-abstract class AttractorField extends DisplayNode {
+	private _span: [number, number] = [0, 1];
+	private _shift: number = 0;
 
+	constructor(topo: IPath, anchor?: IHyperPoint) {
+		super(topo, anchor);
 
-	protected _attractor: any // TODO: cast type
+		return this;
+	}
 
-	protected _orientation: number;
-	protected _polarity: number;
+	public addAttractor(att: IAttractor, at?: number): IAttractor {
+		this._attractors.push(att);
 
-	private _span: Array<number>;
-	private _shift: number;
+		att.setField(this);
+		att.configureAttractor();
 	
-	private _axisAngle: number;
-	
+		if (at && typeof at === "number") {
+			const anchor = this.locateOnSelf(at);
 
-	constructor(  position: PointLike, size: SizeLike, orientation: number = 1, polarity: number = 1 ) {
+			att.setSelfAnchored(true);
+			att.anchorAt(anchor);
+		} else {
+			this.update();
+		}
 
-		super( position, size )
-
-		this._orientation = orientation;
-		this._polarity = polarity;
-
-		this._axisAngle = 0;
-
-		this._span = [ 0, 1 ];
-		this._shift = 0;
-
-	}	
-
-	get attractor() {
-
-		return this._attractor;
+		return att;
 	}
 
-	get attractors() {
+	public addAttractors(attractors: IAttractor[]): void {
+		this._attractors = [...this._attractors, ...attractors.map( (att) => {
+			att.setField(this);
+			att.configureAttractor();
+			return att;
+		})];
 
-		return this.getChildren();
+		this.update();
 	}
 
-	get firstAttractor() {
-
-		return this.getFirstChild();
-	}
-
-	get lastAttractor() {
-
-		return this.getLastChild();
-	}
-
-	set orientation( value: number ) {
-
-		this.scale( value, 1 );
-		this._orientation = value;
-	}
-
-	get orientation() {
-
-		return this._orientation;
-	}
-
-	set polarity( value: number ) {
-
-		this.scale( 1, value );
-		this._polarity = value;
-	}
-
-	get polarity() {
-
-		return this._polarity;
-	}
-
-	set axisAngle( value: number ) {
-
-		this._axisAngle = value;
-	}
-
-
-	get axisAngle() {
-
-		return this._axisAngle;
-	}
-
-	protected calculateOrientation( i: number, anchor: any ) {}
-	protected calculatePolarity( i: number, anchor: any ) {}
-	protected calculateRotation( attractor: any, anchor: any ) {}
-
-
-	protected filterAttractors() {
-
-		const attractors = this.getChildren()
-			.filter( att => !att.isDisabled && !att.isSelfAnchored );
-
+	filterAttractors() {
+		const attractors = this._attractors.filter((att) => !att.selfAnchored);
 		return attractors;
 	}
 
+	update() {
 
-	protected arrangeAttractors( attractors: any[], pTest: boolean = false ) {
+		if (this.field) { // is it anchored on parent field?
+
+			this.adjustToPosition();
+			this.adjustToSpin();
+			this.adjustToPolarity();
+
+			this.rotate(this.axisAngle);
+			this.topo.placeAt(this.anchor.point, this.topo.position);
+		}
 
 
-		const start = this._span[0]
-		const end = this._span[1]
-
-		const span = end - start
-
-		let len = !this._attractor.path.closed || pTest ? attractors.length-1 : attractors.length;
-
-
-		const step = span / ( Math.max( len, 1 ));
-
-		for ( let i = 0; i < attractors.length; i++ ) {
-
-			const attractor = attractors[i]
-
-			const position = ( this._shift + start + step*i ) > 1  ? ( this._shift + start + step*i ) - 1 : ( this._shift + start + step*i );
-
-			const anchor = attractor.isSelfAnchored ? this._attractor.locate( attractor.anchor.position ) : this._attractor.locate( position );
-
-			attractor.reset();
-
-			this.calculateOrientation( attractor, anchor );
-			this.calculatePolarity( attractor, anchor );
-			attractor.axisAngle = this.calculateRotation( attractor, anchor );	
-
-			attractor.anchorAt( anchor );
+		const attractors = this.filterAttractors();
 		
-		} 
-	};
-
-	public getAttractor( i?: number ): any {
-
-		if ( i ) {
-
-			return this.getChild( i );
-
-		} else {
-
-			return this._attractor;
-		}
-
-	};
-
-
-	public locate( location: number, attractor: any = null, orient: boolean = false ): any {
-
-		// -------------------------------------------------------
-		// locate on a specified attractor
-		
-		if ( attractor instanceof AttractorObject ) {
-
-			return attractor.locate( location )
-
-		} else if ( typeof attractor === 'number' ) {
-
-			return this.getChild( attractor ).locate( location, orient )
-
-		// --------------------------------------------------------
-		// if no attractor is specified then locate on all
-
-		} else if ( attractor === undefined || attractor === null ) {
-
-			const attractors = this.filterAttractors();
-			const anchors = attractors
-			  .filter( att => !att.isToSkip )
-			  .map( att => att.locate( location, orient ) );
-
-			// return _.flatten( anchors );
-			return anchors.flat();
-		}
-	}
-
-	// public addAttractor( attractor: any ): void {
-
-	// 	this.add( attractor );
-
-	// }
-
-	public addAttractor( attractor: any, at?: number ): void {
-
-		// super.addAttractor( attractor )
-
-		this.add( attractor );
-
-		// if ( attractor._dimension === null )  { attractor._dimension = this.getChildren().length }
-
-		// ------------------------------------------------------------
-		// 	
-
-		if ( at ) {
-
-			const anchor = this._attractor.locate( at );
-
-			attractor.reset()
-			attractor.isSelfAnchored = true;
-			attractor.orientation = this.calculateOrientation( 0, anchor )
-			attractor.polarity = this.calculatePolarity( 0, anchor );
-			attractor.axisAngle = this.calculateRotation( attractor, anchor );
-			attractor.anchorAt( anchor );
-			
-	
-		// ------------------------------------------------------------
-		// 
-
-		} else {
-
-			this.arrangeAttractors( this.filterAttractors() );
-		}
-	}
-
-	public addAttractors( attractors: any ) {
-
-		this.addMany( attractors );
-
-		this.arrangeAttractors( attractors );
-	}
-
-
-	
-
-
-	public anchorAt( anchor: HyperPoint, along: string = 'RAY' ) {
-
-		// this._attractor._anchor = anchor;
-		// this._attractor._anchor.spin = this._orientation;
-
-		this._attractor.orientation = this.orientation;
-		this._attractor.polarity = this.polarity;
-		this._attractor.axisAngle = this.axisAngle;
-		this._attractor.anchorAt( anchor, along );
-
-		this.arrangeAttractors( this.filterAttractors() );
-
-		// this.rotate( this.axisAngle );
-
-		// this.placeAt( this._attractor._anchor.point, this._attractor._path.position );
-
-	};
-
-
-	public placeAt( position: any, pivot: any ): void {
-
-		const iPos = this.position;
-
-		super.placeAt( position, pivot );
-
-		for ( const att of this.getChildren() ) {
-
-			const pos = att.position.add( this.position.subtract(iPos) )
-
-			att.placeAt( pos )
-		}
-	};
-
-
-	public moveBy( by: number, along: any ) {
-
-		this._attractor._anchor.offsetBy( by, along );
-
-		this.placeAt( this._attractor._anchor.point, null );
-
-		return this;
-	};
-
-	
-	public scale( hor: number, ver: number, scaleField: boolean = false ): any {
-
-		if ( scaleField ) {
-
-			// TODO
-
-		} else {
-
-			for ( const att of this.filterAttractors() ) {
-
-				att.scale( hor, ver );
-				att.rotate( att.anchor.normal.angle );
-			}
-		}
-
-		return this;
-	};
-
-
-	// Rotates the node together with its childs
-
-	public rotate( angle: number ) {
-
-		// if ( !this._attractor.isAxisLocked ) {
-
-		// 	this._attractor._content.rotate( angle, this._attractor._anchor.point );
-		// 	this._attractor.axisAngle += angle;
-		// }
-
-		this._attractor.rotate( angle );
-
-		// const group = new Group();
-
-		// group.addChild( this._content );
-
-		// for ( const att of this.getChildren() ) {
-
-		// 	group.addChild( att._content )
-		// }
-
-		// group.pivot = this._content.position;
-
-		// group.rotate( angle )	
-	}
-
-	// Rotates the childs around the node
-
-	public revolve( angle: number ) {
-
-		const delta = angle; // TODO angles need to be normalized to 0... 1
-
-		this._shift = delta;
-
-		this.arrangeAttractors( this.filterAttractors() );
-
-		return this;
-
-	}
-
-	public spin( angle: number ) {
-
-		for ( const att of this.filterAttractors() ) {
-
-			att.rotate( angle * att.orientation );
-		}
-
-		return this;
-	}
-
-
-	public fold( amount: any, alignAxis: boolean = true ) {
-
-		// const start = this._span[0];
-		// const end = this._span[1];		
-
 		const start = this._span[0];
 		const end = this._span[1];
 
-		let factor = this.filterAttractors().length === 2 ? 3 : this.filterAttractors().length === 3 ? 2 : 1.5;
+		const span = end - start;
 
-		if ( amount >= 0 ) {
+		let len = !this.topo.closed ? attractors.length - 1 : attractors.length;
 
-			this._span = [ start+amount, end-amount*factor ];
+		const step = span / Math.max(len, 1);
 
+		for (let i = 0; i < attractors.length; i++) {
+			const attractor = attractors[i];
+
+			const position =
+				this._shift + start + step * i > 1
+					? this._shift + start + step * i - 1
+					: this._shift + start + step * i;
+
+			const anchor = attractor.selfAnchored
+				? this.locateOnSelf(attractor.anchor.position)
+				: this.locateOnSelf(position);
+
+			this.configureAttractor();
+			attractor.update();
+			attractor.anchorAt(anchor);
+		}
+	}
+
+	getAttractor(i: number): IAttractor {
+		return this._attractors[i];
+	}
+
+	anchorAt(anchor: IHyperPoint, along: VectorDirection = "RAY"): void {
+		if (!this.topo) {
+			throw new Error(`ERROR @AttractorTopo.anchorAt(...): path is missing!`);
+		}
+
+		this.setAnchor(anchor);
+		this.anchor.spin = this.spin;
+
+		if (!this.axisLocked) {
+			if (along === "TAN") {
+				if (!anchor.tangent) {
+					throw new Error("Attractor anchor missing tangent vector");
+				}
+
+				// this._content.rotation = anchor.tangent.angle;
+				this.topo.rotation = anchor.tangent.angle;
+			} else {
+				if (!anchor.normal) {
+					throw new Error("Attractor anchor missing normal vector");
+				}
+				// this._content.rotation = anchor.normal.angle;
+				this.topo.rotation = anchor.normal.angle;
+			}
+		}
+
+		this.update();
+	}
+
+
+	locate(at: number, orient: boolean = false): IHyperPoint[] {
+		const attractors = this.filterAttractors();
+		const anchors = attractors.filter((att) => !att.skip).map((att) => att.locate(at, orient));
+
+		// return _.flatten( anchors );
+		return anchors.flat();
+	}
+
+	locateOn(iAttractor: number, at: number, orient: boolean = false): IHyperPoint {
+		return this.getAttractor(iAttractor).locate(at, orient);
+	}
+
+	locateOnSelf(at: number, orient: boolean = false) {
+		const locationData = this.getTopoLocationAt(at);
+
+		if (locationData) {
+			const pt = this.createAnchor(locationData);
+
+			if (orient && this.spin === -1) {
+				return pt.flip();
+			}
+
+			return pt;
 		} else {
-
-			this._span = [ end+amount, start-amount*factor ];
+			throw new Error(`! ERROR @AttractorTopo.locate() : Unable to locate at ${at}`);
 		}
-
-		const attractors = this.filterAttractors().map( (att) => { att.isAxisLocked=!alignAxis; return att } );
-
-		this.arrangeAttractors( attractors, true );
-
-		return this;
 	}
 
+	rotate(angle: number) {
 
-
-	public compress( start: any, end: any, alignAxis: boolean = true ) {
-
-		this._span = [ start, end ];
-
-		const attractors = this.filterAttractors().map( (att) => { att.isAxisLocked=!alignAxis; return att } );
-
-		this.arrangeAttractors( attractors, true );
-
-		return this;
 	}
 
-
-	public expandBy( by: any, along: string ) {
-
-		for ( const att of this.filterAttractors() ) {
-
-			att.moveBy( by, along );
-		}
-
-		return this;
-	}
-
-	public reset(): void {
-
-		this._attractor.reset()
-
-		this.render( null );
-	}
-
-
-	public remove(): void { 
-
-		this._attractor.remove();
-		super.clear();
-	}
- 
+	remove() {}
 }
 
-
 export default AttractorField;
-
-

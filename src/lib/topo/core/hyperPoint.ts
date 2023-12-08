@@ -1,25 +1,22 @@
-import { BooleanLike, VectorDirection, IPoint, PointLike, SizeLike } from "../types";
-
+import { VectorDirection, IPoint, PointLike, IHyperPoint } from "../types";
 import { validatePointInput } from "../utils/converters";
 
-import DebugDot from "../utils/debugDot";
+import { Point } from "../drawing/paperjs";
 
-import { Point, Segment, Path, Group } from "paper";
-
-class HyperPoint {
+class HyperPoint implements IHyperPoint {
 	private _point: IPoint;
 	private _handleIn: IPoint;
 	private _handleOut: IPoint;
 
-	private _position: number = -1;
+	private _position: number;
 	private _spin: number;
 	private _polarity: number;
 
 	private AXIS: any = {
-		TAN: null,
-		RAY: null,
-		VER: null,
-		HOR: null,
+		TAN: new Point(0,0),
+		RAY: new Point(0,0),
+		VER: new Point(0,0),
+		HOR: new Point(0,0),
 	};
 
 	// private _debugPath1: any
@@ -27,25 +24,24 @@ class HyperPoint {
 	// private _debugDot1: any
 	// private _debugDot2: any
 
-	// private _debugGuides: any
+	// private _debugGuides: any;
 
 	/**
 	 * Creates a new HyperPoint instance.
-	 * @param {Object} point - The point object representing the position of the hyperpoint.
-	 * @param {Object|null} handleIn - The handleIn object representing the incoming handle of the hyperpoint.
-	 * @param {Object|null} handleOut - The handleOut object representing the outgoing handle of the hyperpoint.
 	 */
 
 	constructor(point: PointLike, handleIn: PointLike | null = null, handleOut: PointLike | null = null) {
 		this._point = validatePointInput(point);
-
 		this._handleIn = validatePointInput(handleIn);
 		this._handleOut = validatePointInput(handleOut);
 
 		this._spin = 1;
 		this._polarity = 1;
 
-		// this._debugGuides = new Group();
+		this._position = 0;
+
+		/* DEBUG */
+		// this._debugGuides = [];
 
 		// this._debugPath1 = new Path()
 		// this._debugPath2 = new Path()
@@ -63,24 +59,12 @@ class HyperPoint {
 		return this._position;
 	}
 
-	set x(value: any) {
-		throw new Error(`! ERROR: Can't set x property on a HyperPoint`);
-	}
-
 	get x() {
 		return this._point.x;
 	}
 
-	set y(value: any) {
-		throw new Error(`! ERROR: Can't set y property on a HyperPoint`);
-	}
-
 	get y() {
 		return this._point.y;
-	}
-
-	set point(value: any) {
-		throw new Error(`! ERROR: Can't set point property on a HyperPoint`);
 	}
 
 	get point() {
@@ -159,72 +143,25 @@ class HyperPoint {
 		return this.AXIS.RAY;
 	}
 
-	public getSegment(withInHandle: BooleanLike = true, withOutHandle: BooleanLike = true): any {
-		const includeInHandle = Boolean(withInHandle);
-		const includeOutHandle = Boolean(withOutHandle);
-
-		let hIn;
-		let hOut;
-
-		if (includeInHandle) {
-			hIn = this._handleIn;
-		}
-
-		if (includeOutHandle) {
-			hOut = this._handleOut;
-		}
-
-		return new Segment(this._point, hIn, hOut);
-	}
-
 	public flip(): HyperPoint {
-		// const temp = this._handleIn;
-		// this._handleIn = this._handleOut;
-		// this._handleOut = temp;
-
 		[this._handleIn, this._handleOut] = [this._handleOut, this._handleIn];
 
 		return this;
 	}
 
-	public scaleHandles(scale: number, scaleIn: BooleanLike = true, scaleOut: BooleanLike = true): HyperPoint {
-		if (scaleIn) {
-			if (scale >= 0 && scale <= 1) {
-				this._handleIn.length *= scale;
-			} else if (scale > 1) {
-				// this._handleIn.length = scale;
-				this._handleIn.length *= scale;
-			}
-		}
-
-		if (scaleOut) {
-			if (scale >= 0 && scale <= 1) {
-				this._handleOut.length *= scale;
-			} else if (scale > 1) {
-				// this._handleOut.length = scale;
-				this._handleOut.length *= scale;
-			}
-		}
-
-		return this;
-	}
-
 	public offsetBy(by: number, along: VectorDirection): HyperPoint {
-		// console.log(`@${this.ID} --> spin: ${this._spin}`)
-
 		const d = by * this._polarity;
-
 		const v = this.AXIS[along];
 
-		/* DEBUG */ const debugPath = new Path({
-			segments: [this._point],
-			strokeColor: "#FFAE29",
-		});
+		// /* DEBUG */ const debugPath = new Path({
+		// 	segments: [this._point],
+		// 	strokeColor: "#FFAE29",
+		// });
 
 		this._point = this._point.add(v.multiply(d));
 
 		// /* DEBUG */  debugPath.add( this._point );
-		// /* DEBUG */  const debugDot = new DebugDot( this._point, '#FFAE29', 2) // orange
+		// /* DEBUG */  const debugDot = new Circle( this._point, 2) // orange
 
 		// this._debugGuides.addChildren( [ debugPath, debugDot ] )
 
@@ -243,6 +180,11 @@ class HyperPoint {
 			length: this._handleIn.length * hScale,
 		});
 
+		this.tangent = this._handleOut;
+		this.normal = this.tangent.rotate(-90, this.tangent.point);
+		this.tangent.normalize();
+		this.normal.normalize();
+
 		// this._handleOut.angle += ( tilt )
 		// this._handleIn.angle += ( tilt )
 
@@ -250,8 +192,8 @@ class HyperPoint {
 
 		// const _debugPath1 = new Path({segments: [this._point, this._point.add(this._handleOut.multiply(1))], strokeColor: '#02B7FD'})
 		// const _debugPath2 = new Path({segments: [this._point, this._point.add(this._handleIn.multiply(1))], strokeColor: '#02B7FD'})
-		// const _debugDot1 = new DebugDot(this._point.add(this._handleOut.multiply(1)), '#FFAE29', 2) // orange
-		// const _debugDot2 = new DebugDot(this._point.add(this._handleIn.multiply(1)), '#FFE44F', 2) // yellow
+		// const _debugDot1 = new Circle(this._point.add(this._handleOut.multiply(1)), 2) // orange
+		// const _debugDot2 = new Circle(this._point.add(this._handleIn.multiply(1)), 2) // yellow
 
 		// this._debugGuides.addChildren( [ _debugPath1, _debugPath2, _debugDot1, _debugDot2 ] );
 
@@ -279,11 +221,6 @@ class HyperPoint {
 
 		return _clone;
 	}
-
-	// public clearGuides(): void {
-
-	// 	this._debugGuides.removeChildren();
-	// }
 }
 
 export default HyperPoint;

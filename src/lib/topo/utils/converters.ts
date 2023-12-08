@@ -1,4 +1,6 @@
-import { Point, Segment } from 'paper';
+declare const paper:any;
+
+import { Point, Segment } from '../drawing/paperjs';
 
 import { BooleanLike, IHyperPoint, IPoint, PointLike, SizeLike } from '../types';
 
@@ -11,24 +13,32 @@ export function convertToPoint( pt: any ) {
 }
 
 
-export function convertToSegment( pt: any, withInHandle: BooleanLike = true, withOutHandle: BooleanLike = true ) {
+export function convertToSegment( pt: IHyperPoint | PointLike, withInHandle: BooleanLike = true, withOutHandle: BooleanLike = true ): paper.Segment | paper.Point {
 
-  const includeInHandle = Boolean( withInHandle );
-  const includeOutHandle = Boolean( withOutHandle );    
+  if ( pt instanceof HyperPoint ) {
     
-  let hIn = null;
-  let hOut = null;
+    const includeInHandle = Boolean( withInHandle );
+    const includeOutHandle = Boolean( withOutHandle );    
+      
+    let hIn = null;
+    let hOut = null;
 
-   if (includeInHandle ) {
-     hIn = pt.handleIn;
-   }
+     if (includeInHandle ) {
+       hIn = pt.handleIn;
 
-  if (includeOutHandle ) {
-    hOut = pt.handleOut;
+       
+     }
+
+    if (includeOutHandle ) {
+      hOut = pt.handleOut;
+    }
+    
+    return new paper.Segment ( pt.point, hIn, hOut );
+
+  } else {
+
+    return new paper.Point ( pt )
   }
-
-  return new Segment ( pt.point, hIn, hOut );
-
 }
 
 

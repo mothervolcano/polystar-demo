@@ -1,374 +1,169 @@
-import { PathLocationData, UnitIntervalNumber, BooleanLike, VectorDirection, IPoint, IHyperPoint, PointLike, SizeLike } from '../types';
+import { IAttractor, IAttractorField, IHyperPoint, IPath, TopoLocationData, VectorDirection } from "../types";
 
-import DisplayObject from './displayObject';
-import HyperPoint from './hyperPoint';
-import { convertToHyperPoint } from '../utils/converters';
+abstract class AttractorObject {
+	private _topo: IPath | null;
+	private _anchor: IHyperPoint | null = null;
+	private _field: IAttractorField | null = null;
 
-abstract class AttractorObject extends DisplayObject {
+	//------------------------------------
+	// PROPERTIES
 
-	protected _orientation: number;
-	protected _polarity: number;
+	private _spin: number = 1;
+	private _polarity: number = 1;
 
-	protected _path: any;
-	protected _anchor: IHyperPoint;
+	private _length: number = 0;
+	private _axisAngle: number = 0;
 
-	protected _radius: SizeLike | number;
+	private _axisLocked: boolean = false;
+	private _selfAnchored: boolean = false;
+	private _skip: boolean = false;
 
-	private _axisAngle: number;
-	
-	// STATES. Set at creation time and meant to preserve original settings during transformations and redrawing.
-	// The default is for the fields to organically adjust the attractors. These state properties allow to 
-	// designate attractors to ignore the settings coming from the parent field.
-	
-	public isDisabled: boolean;
-	public isSelfAnchored: boolean;
-	public isAxisLocked: boolean;
+	//------------------------------------
+	// 
 
+	private _determineSpin: Function = () => {};
+	private _determinePolarity: Function = () => {};
+	private _determineOrientation: Function = () => {};
 
-	constructor( size: SizeLike, position: PointLike = {x:0, y:0} ) {
-
-		super( position, size );
-
-		this._orientation = 1;
-		this._polarity = 1;
-
-		this._anchor = convertToHyperPoint(position);
-
-		this._radius = 0; // The radius value will depend on the type of attractor eg. Orbital, Spine and therefore it is defined by the subclass.
-
-		this._axisAngle = 0;
-		
-		this.isDisabled = false;
-		this.isAxisLocked = false;
-		this.isSelfAnchored = false;
-
-	};
-
-	protected abstract getPathLocationDataAt( pos: number ): PathLocationData;
-	protected abstract adjustToOrientation( value: number ): any;
-	protected abstract adjustToPolarity( value: number ): any;
-
-
-	set orientation( value: number ) {
-
-		this._orientation = value;
-	};
-
-
-	get orientation() {
-
-		return this._orientation;
-	};
-
-
-	set polarity( value: number ) {
-
-		this._polarity = value;
-
-	};
-
-
-	get polarity() {
-
-		return this._polarity;
-	};
-
-
-	set axisAngle( value: number ) {
-
-		this._axisAngle = value;
+	constructor(aTopo: IPath, aAnchor?: IHyperPoint) {
+		this._topo = aTopo;
+		this._anchor = aAnchor || null;
 	}
 
+	setTopo( aTopo: IPath ) {
+		this._topo = aTopo;
+	}
 
-	get axisAngle() {
+	get determineOrientation(): Function {
+		return this._determineOrientation;
+	}
 
+	get determineSpin(): Function {
+		return this._determineSpin;
+	}
+
+	get determinePolarity(): Function {
+		return this._determinePolarity;
+	}
+
+	setOrientationDeterminator(fn: Function) {
+		this._determineOrientation = fn;
+	}
+
+	setSpinDeterminator(fn: Function) {
+		this._determineSpin = fn;
+	}
+
+	setPolarityDeterminator(fn: Function) {
+		this._determinePolarity = fn;
+	}
+ 
+	get anchor(): IHyperPoint {
+		if (!this._anchor) {
+			throw new Error(`Attractor is without anchor`);
+		}
+
+		return this._anchor;
+	}
+
+	get topo(): IPath {
+		return this._topo;
+	}
+
+	get field(): IAttractorField | null {
+		return this._field;
+	}
+
+	get spin(): number {
+		return this._spin;
+	}
+
+	get polarity(): number {
+		return this._polarity;
+	}
+
+	get length(): number {
+		return this._length;
+	}
+
+	get axisAngle(): number {
 		return this._axisAngle;
 	}
 
-
-	// anchor is set when the attractor is placed in a field
-
-	set anchor( pt: IHyperPoint ) {
-
-		console.log(`!ERROR @AttractorObject: Anchor cannot be set directly. Attractor must be placed in and by a Field to be assigned an anchor`);
-
-		// this._anchor = value;
-	};
-
-
-	get anchor() {
-
-		return this._anchor;
-	};
-
-
-	get path() {
-
-		return this._path;
-	};
-
-	get center() {
-
-		return convertToHyperPoint( this._path.bounds.center );
-	};
-
-	set radius( value: SizeLike | number ) {
-
-		this._radius = value;
+	get axisLocked(): boolean {
+		return this._axisLocked;
 	}
 
-	// TODO: Perhaps a base property called Dimension to apply to both Orbitals and Spines as it would respectively mean radius and length?
-
-	get radius() {
-
-		return this._radius;
+	get selfAnchored(): boolean {
+		return this._selfAnchored;
 	}
 
-	get length() {
+	get skip(): boolean {
+		return this._skip;
+	}
 
-		return this._path.length;
-	};
+	public addAttractor(aAttractor: IAttractor): IAttractor {
+		throw new Error("addAttractor method is only available on AttractorFields");
+	}
 
+	public getAttractor(i: number): IAttractor {
+		throw new Error("getAttractor method is only available on AttractorFields");
+	}
 
-	public getPath(): any {
+	abstract anchorAt(aAnchor: IHyperPoint, along?: VectorDirection): void;
 
-		return this._path.clone();
-	};
+	setField(aAttractorField: IAttractorField): void {
+		this._field = aAttractorField;
+	}
 
+	setSpin(value: number) {
+		this._spin = value;
+	}
 
-	// at is provided by attractors that have paths that are non-linear ie. the input location doesn't match the mapped location.
-	private createAnchor({
-	    
-	    point,
-	    tangent,
-	    normal,
-	    curveLength,
-	    pathLength,
-	    at,
+	setPolarity(value: number) {
+		this._polarity = value;
+	}
 
-	}: PathLocationData ): IHyperPoint {
-		
-		const factor = [0, 0.25, 0.50, 0.75 ].includes(at) ? 1/3 : curveLength/pathLength;
+	setLength(value: number) {
+		this._length = value;
+	}
 
-		const hIn = tangent.multiply( curveLength * factor ).multiply( -1 );
-		const hOut = tangent.multiply( curveLength * factor );		
+	 setAxisAngle(angle: number): void {
+		this._axisAngle = angle;
+	}
 
-		const anchor = new HyperPoint( point, hIn, hOut );
+	 setAxisLocked(value: boolean): void {
+		this._axisLocked = value;
+	}
 
-		anchor.position = at;
-		anchor.tangent = tangent.multiply(this._orientation); // HACK: because the path is flipped using scale() the vectors need to be inverted
-		anchor.normal = normal.multiply(this._orientation);
-		anchor.spin = this._orientation;
-		anchor.polarity = this._polarity;
+	 setSelfAnchored(value: boolean): void {
+		this._selfAnchored = value;
+	}
 
-		return anchor;
-	};
+	 setSkip(value: boolean): void {
+		this._skip = value;
+	}
 
+	abstract update(anchor?: IHyperPoint): void;
 
-	public anchorAt( anchor: HyperPoint, along: VectorDirection = 'RAY'): void {
+	abstract adjustToPosition(): void;
+	abstract adjustToSpin(): void;
+	abstract adjustToPolarity(): void;
 
-		this._anchor = anchor;
-		this._anchor.spin = this._orientation;
+	abstract locate(at: number, orient?: boolean): IHyperPoint | IHyperPoint[];
+	abstract getTopoLocationAt(at: number): TopoLocationData;
+	abstract createAnchor(topoLocationData: TopoLocationData): IHyperPoint;
 
-		if ( !this.isAxisLocked ) {
+	// -----------------------------------------------------------------------------
+	
+	abstract draw(): void;
+	abstract rotate(angle: number): void;
 
-			if ( along === 'TAN' ) {
+	// -----------------------------------------------------------------------------
 
-				this._content.rotation = anchor.tangent.angle;
-
-			} else {
-
-				this._content.rotation = anchor.normal.angle;
-			}	
-		}
-		
-		this.rotate( this.axisAngle );
-		this.placeAt( this._anchor.point, this._path.position );
-
-	};
-
-
-	public extractPath( A: IHyperPoint | number, B: IHyperPoint | number ): any {
-
-		let P1;
-		let P2;
-
-		if ( typeof A === 'number' ) {
-
-			P1 = this.getPathLocationDataAt( A ).point;
-
-		} else if ( A.point ) {
-
-			P1 = this._path.getNearestLocation( A.point ).point;
-		}
-
-
-		if ( typeof B === 'number' ) {
-
-			P2 = this.getPathLocationDataAt( B ).point;
-
-		} else if ( B.point ) {
-
-			P2 = this._path.getNearestLocation( B.point ).point;
-		}
-
-
-		const extractedPath = this._path.clone()
-
-		extractedPath.splitAt( extractedPath.getNearestLocation( P1 ) )
-		let discardedPath = extractedPath.splitAt( extractedPath.getNearestLocation( P2 ) )
-
-		extractedPath.strokeColor = 'red';
-		extractedPath.strokeWidth = 5;
-
-		discardedPath.remove();
-
-		return extractedPath;
-
-	};
-
-
-	public locate( at: number, orient: boolean = false  ): IHyperPoint | null { // TODO: cast type
-
-		const locationData = this.getPathLocationDataAt( at );
-
-		if ( locationData ) {
-
-			const pt = this.createAnchor( locationData );
-
-			if ( orient && this._orientation === -1 ) { return pt.flip() } 
-
-			return pt;
-
-		} else {
-
-			console.log(`! ERROR @AttractorObject.locate() : Unable to locate at`)
-
-			return null
-		}
-	};
-
-
-	public locateFirstIntersection( item: any, orient: boolean = false ) { // TODO: returns a hyperpoint
-
-		if ( item instanceof AttractorObject ) {
-
-			const intersections = this._path.getIntersections( item.getPath() );
-
-			if ( intersections.length > 0 ) {
-
-				const curveLocation = intersections[0];
-
-				const pt = this.createAnchor( {   
-
-					point: curveLocation.point, 
-					tangent: curveLocation.tangent, 
-					normal: curveLocation.normal, 
-					curveLength: curveLocation.curve.length, 
-					pathLength: curveLocation.path.length, 
-					at: curveLocation.offset / curveLocation.path.length
-
-				});
-
-				if ( orient && this._orientation === -1 ) { return pt.flip() }
-
-				return pt;
-			}
-		}
-	};
-
-
-	public locateLastIntersection( item: any, orient: boolean = false ) {
-
-		if ( item instanceof AttractorObject ) {
-
-			const intersections = this._path.getIntersections( item.getPath() );
-
-			if ( intersections.length > 0 ) {
-
-				const curveLocation = intersections.slice(-1)[0];
-
-				const pt = this.createAnchor({
-
-					point: curveLocation.point, 
-					tangent: curveLocation.tangent, 
-					normal: curveLocation.normal, 
-					curveLength: curveLocation.curve.length, 
-					pathLength: curveLocation.path.length, 
-					at: curveLocation.offset / curveLocation.path.length
-				})
-
-				if ( orient && this._orientation === -1 ) { return pt.flip() }
-
-				return pt;
-			}
-		}
-	};
-
-
-	public moveBy( by: number, along: VectorDirection ) {
-
-		this._anchor.offsetBy( by, along );
-
-		this.placeAt( this._anchor.point );
-
-		return this;
-	};
-
-
-	public reverse() {
-
-		this._content.reverse();
-
-		return this;		
-	};
-
-
-	public scale( hor: number, ver: number ) {
-
-		this._content.scale( hor, ver );
-		this._radius = this._content.bounds.width;
-
-		return this;
-	};
-
-	public skew( vector: IPoint ): any {
-
-		// this._path.scale( hor, ver )
-		this._content.shear( vector, this._path.position );
-
-		return this;	
-	};
-
-
-	public rotate( angle: number ) {
-
-		if ( !this.isAxisLocked ) {
-
-			this._content.rotate( angle, this._anchor.point );
-			this.axisAngle += angle;
-		}
-	};
-
-
-	public reset() {
-		
-		this.remove();
-		this.render( null );
-	};
-
-
-	public remove() {
-
-		if ( this.isRendered ) {
-
-			this._content.remove();
-		}
-	};
-
+	setAnchor(aAnchor?: IHyperPoint) {
+		if (aAnchor) this._anchor = aAnchor;
+	}
 }
 
-
-export default AttractorObject
-
-
+export default AttractorObject;
