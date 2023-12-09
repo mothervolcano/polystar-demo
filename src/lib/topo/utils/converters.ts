@@ -1,50 +1,59 @@
 import { Point, Segment } from 'paper';
+import { TopoPoint } from '../drawing/paperjs';
 
-import { BooleanLike, IHyperPoint, IPoint, PointLike, SizeLike } from '../types';
+import { BooleanLike, PointLike, SizeLike } from '../topo';
 
 import HyperPoint from '../core/hyperPoint'
 
 
 export function convertToPoint( pt: any ) {
 
-  return new Point( pt.x, pt.y );
+  return new TopoPoint( pt.x, pt.y );
 }
 
 
-export function convertToSegment( pt: any, withInHandle: BooleanLike = true, withOutHandle: BooleanLike = true ) {
+export function convertToSegment( pt: HyperPoint | PointLike, withInHandle: BooleanLike = true, withOutHandle: BooleanLike = true ): paper.Segment | paper.Point {
 
-  const includeInHandle = Boolean( withInHandle );
-  const includeOutHandle = Boolean( withOutHandle );    
+  if ( pt instanceof HyperPoint ) {
     
-  let hIn = null;
-  let hOut = null;
+    const includeInHandle = Boolean( withInHandle );
+    const includeOutHandle = Boolean( withOutHandle );    
+      
+    let hIn = null;
+    let hOut = null;
 
-   if (includeInHandle ) {
-     hIn = pt.handleIn;
-   }
+     if (includeInHandle ) {
+       hIn = pt.handleIn;
 
-  if (includeOutHandle ) {
-    hOut = pt.handleOut;
+       
+     }
+
+    if (includeOutHandle ) {
+      hOut = pt.handleOut;
+    }
+    
+    return new Segment ( pt.point, hIn as PointLike, hOut as PointLike );
+
+  } else {
+
+    return new Point ( pt )
   }
-
-  return new Segment ( pt.point, hIn, hOut );
-
 }
 
 
-export function convertToHyperPoint( pt: PointLike ): IHyperPoint {
+export function convertToHyperPoint( pt: PointLike ): HyperPoint {
 
   const P = new HyperPoint( pt );
   P.spin = 1;
 
-  return P as IHyperPoint;
+  return P as HyperPoint;
 }
 
 
 
-export function validatePointInput(input: any): IPoint {
+export function validatePointInput(input: any): TopoPoint {
 	  
-  if ( input === null ) { return new Point(0,0) };
+  if ( input === null ) { return new TopoPoint(0,0) };
 
   if (Array.isArray(input) && input.length === 2) {
     
@@ -61,7 +70,7 @@ export function validatePointInput(input: any): IPoint {
     if (Number.isNaN(x)) { x = 0; }
     if (Number.isNaN(y)) { y = 0; }
 
-    return new Point(x, y);
+    return new TopoPoint(x, y);
 
   }
 
@@ -93,7 +102,7 @@ export function validatePointInput(input: any): IPoint {
     if (Number.isNaN(x)) { x = 0; }
     if (Number.isNaN(y)) { y = 0; }
 
-    return new Point(x, y);
+    return new TopoPoint(x, y);
     
   }
 
@@ -115,7 +124,7 @@ export function validatePointInput(input: any): IPoint {
     const x = width / 2;
     const y = height / 2;
 
-    return new Point( x, y );
+    return new TopoPoint( x, y );
   }
 
   throw new Error('Invalid point input');

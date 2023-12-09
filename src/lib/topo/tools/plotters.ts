@@ -1,12 +1,12 @@
 import { merge } from './stitcher';
 
-export function plotAttractorFirstIntersection( field: any, i1: number = 0, i2: number = 1 ) {
+export function plotAttractorFirstIntersection( field: any, i1: number, i2: number ) {
 
 	return field.getAttractor( i1 ).locateFirstIntersection( field.getAttractor( i2 ), true );	
 };
 
 
-export function plotAttractorLastIntersection( field: any, i1: number = 0, i2: number = 1 ) {
+export function plotAttractorLastIntersection( field: any, i1: number, i2: number ) {
 
 	return field.getAttractor( i1 ).locateLastIntersection( field.getAttractor( i2 ), true );	
 };
@@ -36,8 +36,8 @@ export function plotAllAttractorIntersections( field: any, MODE: string = 'NEXT'
 			plotter = ORDER === 'FIRST' ? plotAttractorLastIntersection : plotAttractorFirstIntersection;
 		}
 
-		let iIntersected;
-		let iIntersector;
+		let iIntersected: any;
+		let iIntersector: any;
 
 
 		switch ( MODE ) {

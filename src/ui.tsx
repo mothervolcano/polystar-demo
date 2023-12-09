@@ -84,7 +84,7 @@ const UI = () => {
 			return () => {};
 		}
 
-		console.log("1 --> PAPERJS LOADED! CurrentModel: ", artColor);
+		console.log("1 --> PAPERJS LOADED! CurrentModel: ", currentModel);
 
 		setParamsForConsole(currentModel.params);
 		const params = parseParams(currentModel.params);
