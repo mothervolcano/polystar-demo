@@ -55,12 +55,14 @@ class TopoTest {
 		const polyRadius = this._radius;
 		const starRadius = polyRadius * Math.cos(Math.PI / sides);
 		
-		const testOrbitalField = new OrbitalField(100*2*Math.PI, this._position);
-		const testSpinalField = new SpinalField(300, this._position);
+		const testOrbitalField = new OrbitalField(starRadius*2*Math.PI, this._position);
+		const testSpinalField = new SpinalField(starRadius, this._position);
 
 		const testSpine1 = new Spine(100, this._position);
 		const testSpine2 = new Spine(100, this._position);
 		const testSpine3 = new Spine(100, this._position);
+		const testSpine4 = new Spine(100, this._position);
+		const testSpine5 = new Spine(100, this._position);
 		const testOrbital1 = new Orbital(50*2*Math.PI, this._position);
 		const testOrbital2 = new Orbital(50*2*Math.PI, this._position);
 		const testOrbital3 = new Orbital(50*2*Math.PI, this._position);
@@ -69,21 +71,29 @@ class TopoTest {
 
 
 
-		testOrbitalField.addAttractor(testOrbital1);
-		testOrbitalField.addAttractor(testOrbital2);
-		testOrbitalField.addAttractor(testOrbital3);
-		testOrbitalField.addAttractor(testOrbital4);
-		testOrbitalField.addAttractor(testOrbital5);
+		// testOrbitalField.addAttractor(testOrbital1);
+		// testOrbitalField.addAttractor(testOrbital2);
+		// testOrbitalField.addAttractor(testOrbital3);
+		// testOrbitalField.addAttractor(testOrbital4);
+		// testOrbitalField.addAttractor(testOrbital5);
 		// testOrbitalField.addAttractor(testSpine1);
 		// testOrbitalField.addAttractor(testSpine2);
 		// testOrbitalField.addAttractor(testSpine3);
+		// testOrbitalField.addAttractor(testSpine4);
+
+		testOrbitalField.addAttractors([testSpine1,testSpine2, testSpine3])
 
 		// testSpinalField.addAttractor(testOrbital)
 		// testSpinalField.addAttractor(testSpine)
 
+		const angleOffset = (180 / sides) * twirlCtrl;
+		testOrbitalField.revolve(normalize(angleOffset, 0, 360));
+
+		testOrbitalField.expandBy(starRadius * (expansionCtrl - 0.5) * 1.75, "RAY");
 
 		const pts = testOrbitalField.locate(0.25);
 		const pts2 = testOrbitalField.locate(0);
+
 
 		for ( const pt of pts ) {
 
