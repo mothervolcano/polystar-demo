@@ -70,7 +70,7 @@ const models: Model[] = [
     model: Polystar,
     console: DefaultConsole,
     params: defaultParams,
-    default: false,
+    default: true,
     checked: false,
   },
   {
@@ -80,7 +80,7 @@ const models: Model[] = [
     model: TopoTest,
     console: DefaultConsole,
     params: defaultParams,
-    default: true,
+    default: false,
     checked: false,
   },
 ];
