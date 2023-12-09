@@ -21,7 +21,7 @@ abstract class AttractorField extends AttractorObject {
 
 		att.setField(this);
 		att.configureAttractor();
-	
+
 		if (at && typeof at === "number") {
 			const anchor = this.locateOnSelf(at);
 
@@ -35,11 +35,14 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 	public addAttractors(attractors: AttractorObject[]): void {
-		this._attractors = [...this._attractors, ...attractors.map( (att) => {
-			att.setField(this);
-			att.configureAttractor();
-			return att;
-		})];
+		this._attractors = [
+			...this._attractors,
+			...attractors.map((att) => {
+				att.setField(this);
+				att.configureAttractor();
+				return att;
+			}),
+		];
 
 		this.update();
 	}
@@ -50,8 +53,8 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 	update() {
-
-		if (this.field) { // is it anchored on parent field?
+		if (this.field) {
+			// is it anchored on parent field?
 
 			this.adjustToPosition();
 			this.adjustToSpin();
@@ -61,9 +64,8 @@ abstract class AttractorField extends AttractorObject {
 			this.topo.placeAt(this.anchor.point, this.topo.position);
 		}
 
-
 		const attractors = this.filterAttractors();
-		
+
 		const start = this._span[0];
 		const end = this._span[1];
 
@@ -123,7 +125,6 @@ abstract class AttractorField extends AttractorObject {
 		this.update();
 	}
 
-
 	locate(at: number, orient: boolean = false): HyperPoint[] {
 		const attractors = this.filterAttractors();
 		const anchors = attractors.filter((att) => !att.skip).map((att) => att.locate(at, orient));
@@ -152,42 +153,43 @@ abstract class AttractorField extends AttractorObject {
 		}
 	}
 
-	public scale( hor: number, ver: number ) {
-
-		for ( const att of this.filterAttractors() ) {
-
-			att.scale( hor, ver );
+	public scale(hor: number, ver: number) {
+		for (const att of this.filterAttractors()) {
+			att.scale(hor, ver);
 		}
 
-		this.topo.scale( hor, ver );
+		this.topo.scale(hor, ver);
 		this.setLength(this.topo.length);
 
 		this.update();
 
 		return this;
-	};
+	}
 
 	public rotate(angle: number) {
-
-		for ( const att of this.filterAttractors() ) {
-
-			att.rotate( angle * att.spin );
+		for (const att of this.filterAttractors()) {
+			att.rotate(angle * att.spin);
 		}
+
+		if (!this.axisLocked) {
+			this.topo.rotate(angle * this.spin, this.anchor.point);
+			this.setAxisAngle(this.axisAngle + angle);
+		}
+
+		this.update();
 
 		return this;
 	}
 
-	public moveBy( by: number, along: VectorDirection ) {
+	public moveBy(by: number, along: VectorDirection) {
+		this.anchor.offsetBy(by, along);
 
-		this.anchor.offsetBy( by, along );
-
-		this.topo.placeAt( this.anchor.point );
+		this.topo.placeAt(this.anchor.point);
 
 		return this;
-	};
+	}
 
-	public revolve( angle: number ) {
-
+	public revolve(angle: number) {
 		const delta = angle; // TODO angles need to be normalized to 0... 1
 
 		this._shift = delta;
@@ -197,22 +199,22 @@ abstract class AttractorField extends AttractorObject {
 		return this;
 	}
 
-	public compress( start: number, end: number, alignAxis: boolean = true ) {
+	public compress(start: number, end: number, alignAxis: boolean = true) {
+		this._span = [start, end];
 
-		this._span = [ start, end ];
-
-		const attractors = this.filterAttractors().map( (att) => { att.setAxisLocked(alignAxis); return att } );
+		const attractors = this.filterAttractors().map((att) => {
+			att.setAxisLocked(alignAxis);
+			return att;
+		});
 
 		this.update();
 
 		return this;
 	}
 
-	public expandBy( by: number, along: VectorDirection ) {
-
-		for ( const att of this.filterAttractors() ) {
-
-			att.moveBy( by, along );
+	public expandBy(by: number, along: VectorDirection) {
+		for (const att of this.filterAttractors()) {
+			att.moveBy(by, along);
 		}
 
 		return this;
