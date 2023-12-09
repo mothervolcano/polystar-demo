@@ -20,10 +20,10 @@ class OrbitalField extends AttractorField {
 		if (this.anchor) {
 
 			this.topo.reset();
-			this.topo.visibility = true;
+			this.topo.visibility = false;
 
 			this.topo.createCircle(this.anchor, this.length/Math.PI/2);
-			this.topo.strokeColor = new paper.Color("orange");
+			// this.topo.strokeColor = new paper.Color("orange");
 		}
 	}
 

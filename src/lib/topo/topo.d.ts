@@ -177,19 +177,20 @@ declare class TopoPoint {
 }
 
 declare class TopoPath extends DisplayObject {
-  fullySelected: boolean;
   size: SizeLike;
   position: PointLike;
   pivot: PointLike;
   center: PointLike;
   rotation: PointLike;
   strokeColor: paper.Color | null;
+  fillColor: paper.Color | null;
   visibility: boolean;
   length: number;
   closed: boolean;
   points: HyperPoint[];
   firstPoint: HyperPoint;
   lastPoint: HyperPoint;
+  fullySelected: boolean;
 
   // static Circle(center: PointLike, radius: number): TopoPath
 
@@ -200,14 +201,14 @@ declare class TopoPath extends DisplayObject {
   add(...point: (IHyperPoint | PointLike | number[])[]): void;
   insert(index: number, point: HyperPoint | PointLike): void;
   reverse(): void;
-  getLocationAt(offset: number): any;
-  getPointAt(offset: number): paper.Point;
   scale(hor: number, ver: number, center?: PointLike): void;
   rotate(angle: number, center?: PointLike): void;
+  getPointAt(offset: number): paper.Point;
+  getLocationAt(offset: number): any;
+  getPaperPath(): paper.Path;
   clone(): TopoPath
   reset(): void;
   remove(): void;
-  addOrientationArrow(): void;
 }
 
 export interface IGroup {

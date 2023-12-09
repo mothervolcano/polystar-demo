@@ -7,7 +7,7 @@ import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
 
 class Spine extends AttractorTopo {
 
-	constructor(length: number, anchor?: HyperPoint ) {
+	constructor(length: number, anchor: HyperPoint = new HyperPoint([0,0]) ) {
 
 		const topoPath: TopoPath = new TopoPath()
 
@@ -27,9 +27,9 @@ class Spine extends AttractorTopo {
 			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
 			this.topo.add(A,B);
 
-			this.topo.visibility = true;
+			this.topo.visibility = false;
 
-			this.topo.strokeColor = new paper.Color("blue");
+			// this.topo.strokeColor = new paper.Color("blue");
 		}
 	}
 
@@ -48,7 +48,7 @@ class Spine extends AttractorTopo {
 		if (this.determineOrientation(this.anchor.position)) {
 			this.setAxisAngle(0);
 		} else if (!this.determineOrientation(this.anchor.position)) {
-			this.setAxisAngle(180);
+			this.setAxisAngle(0);
 		} else {
 			throw new Error("POSSIBLY TRYING TO ANCHOR OUTSIDE OF FIELDs BOUNDS");
 		}
@@ -58,7 +58,7 @@ class Spine extends AttractorTopo {
 		if (this.determineSpin(this.anchor.position)) {
 			this.setSpin(1);
 		} else if (!this.determineSpin(this.anchor.position)) {
-			this.setSpin(-1);
+			this.setSpin(1);
 		} else {
 			throw new Error("POSSIBLY TRYING TO PLACE THE ATTRACTOR OUTSIDE OF FIELDs BOUNDS");
 		}

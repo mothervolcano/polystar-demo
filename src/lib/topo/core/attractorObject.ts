@@ -60,7 +60,7 @@ abstract class AttractorObject {
  
 	get anchor(): HyperPoint {
 		if (!this._anchor) {
-			throw new Error(`Attractor is without anchor`);
+			throw new Error(`ERROR @ AttractorObject.anchor: Attractor is without anchor`);
 		}
 
 		return this._anchor;

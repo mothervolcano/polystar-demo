@@ -33,9 +33,9 @@ class SpinalField extends AttractorField {
 			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
 			this.topo.add(A,B);
 
-			this.topo.visibility = true;
+			this.topo.visibility = false;
 
-			this.topo.strokeColor = new paper.Color("orange");
+			// this.topo.strokeColor = new paper.Color("orange");
 		}
 	}
 

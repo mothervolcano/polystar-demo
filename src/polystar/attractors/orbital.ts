@@ -1,5 +1,5 @@
 import { TopoLocationData, TopoPoint } from '../../lib/topo/topo';
-import { TopoOrbital, TopoPath } from '../../lib/topo/drawing/paperjs';
+import { TopoPath } from '../../lib/topo/drawing/paperjs';
 import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
 
 import HyperPoint from '../../lib/topo/core/hyperPoint'
@@ -10,7 +10,7 @@ class Orbital extends AttractorTopo {
 
 	// private _fixedOrientation: boolean;
 
-	constructor(length: number, anchor?: HyperPoint ) {
+	constructor(length: number, anchor: HyperPoint = new HyperPoint([0,0])) {
 
 		const topoPath: TopoPath = new TopoPath()
 
@@ -26,12 +26,10 @@ class Orbital extends AttractorTopo {
 		if (this.anchor) {
 
 			this.topo.reset();
-			this.topo.visibility = true;
+			this.topo.visibility = false;
 
 			this.topo.createCircle(this.anchor, this.length/Math.PI/2);
-			this.topo.strokeColor = new paper.Color("blue");
-
-			// this.topo.addOrientationArrow();
+			// this.topo.strokeColor = new paper.Color("blue");
 		}
 	}
 

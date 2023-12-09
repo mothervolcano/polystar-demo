@@ -128,11 +128,6 @@ export class TopoPoint {
 }
 
 export class TopoPath extends DisplayObject {
-    private _debugPath1: any;
-    private _debugPath2: any;
-    private _debugPath3: any;
-    private _debugPath4: any;
-    private _arrow: paper.Group;
 
     protected _Path: paper.Path;
 
@@ -154,12 +149,6 @@ export class TopoPath extends DisplayObject {
             this._Path = paperPath;
         }
         this.render(this);
-
-        this._debugPath1 = new paper.Path();
-        this._debugPath2 = new paper.Path();
-        this._debugPath3 = new paper.Path();
-        this._debugPath4 = new paper.Path();
-        this._arrow = new paper.Group();
     }
 
     // static Circle(center: PointLike, radius: number): TopoPath {
@@ -219,6 +208,14 @@ export class TopoPath extends DisplayObject {
         return this._Path.strokeColor;
     }
 
+    set fillColor(value: paper.Color | null) {
+        this._Path.fillColor = value;
+    }
+
+    get fillColor(): paper.Color | null {
+        return this._Path.fillColor;
+    }
+
     set visibility(value: boolean) {
         this._Path.visible = value;
     }
@@ -229,6 +226,10 @@ export class TopoPath extends DisplayObject {
 
     get length(): number {
         return this._Path.length;
+    }
+
+    set closed(value: boolean) {
+        this._Path.closed = value;
     }
 
     get closed(): boolean {
@@ -318,51 +319,10 @@ export class TopoPath extends DisplayObject {
         this._Path.remove();
     }
 
-    public addOrientationArrow() {
-
-        this._debugPath1.remove();
-        this._debugPath2.remove();
-        this._debugPath3.remove();
-        this._debugPath4.remove();
-        this._arrow.remove();
-
-        // this._debugPath1 = new paper.Path();
-        // this._debugPath2 = new paper.Path();
-        // this._debugPath3 = new paper.Path();
-        // this._debugPath4 = new paper.Path();
-        this._arrow = new paper.Group();
-
-        this._debugPath1 = new paper.Path({ segments: [ this._Path.segments[0], this._Path.segments[1] ], strokeColor: '#70D9FF' });
-        
-        let _A = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
-        let _Ar = _A.rotate( 30, this._debugPath1.lastSegment.point );
-        
-        let _B = this._debugPath1.lastSegment.point.subtract( this._debugPath1.lastSegment.location.tangent.multiply(5) );
-        let _Br = _B.rotate( -40, this._debugPath1.lastSegment.point );
-
-        this._debugPath2 = new paper.Path( {
-                                    segments: [ this._debugPath1.lastSegment.point, _Ar ],
-                                    strokeColor: '#70D9FF' });
-        
-        this._debugPath3 = new paper.Path( {
-                                    segments: [ this._debugPath1.lastSegment.point, _Br ],
-                                    strokeColor: '#70D9FF' });
-
-        this._debugPath4 = new paper.Path.Circle({center: this._debugPath1.firstSegment.point, radius: 2, fillColor: '#70D9FF'});
-    
-
-        this._arrow.addChild(this._debugPath1);
-        this._arrow.addChild(this._debugPath2);
-        this._arrow.addChild(this._debugPath3);
-        this._arrow.addChild(this._debugPath4);
-
-        // this._arrow.pivot = this._debugPath1.firstSegment.point;
-        // this._arrow.position = this._Path.position;
-        // this._debugPath1.transform(this._Path.matrix)
-
-        this.update(new Group( [this._Path, this._arrow] ) );
-
+    public getPaperPath(): paper.Path {
+        return this._Path;
     }
+
 }
 
 export class TopoOrbital extends TopoPath {
