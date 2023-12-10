@@ -114,7 +114,7 @@ export class TopoPoint {
             // If a [number, number] tuple
             return new TopoPoint(this._Point.add({x: arg[0], y: arg[1]}));
         } else {
-            return new TopoPoint(arg);
+            return new TopoPoint(this._Point.add(arg));
         }
     }
 
@@ -126,7 +126,7 @@ export class TopoPoint {
             // If a [number, number] tuple
             return new TopoPoint(this._Point.multiply({x: arg[0], y: arg[1]}));
         } else {
-            return new TopoPoint(arg);
+            return new TopoPoint(this._Point.multiply(arg));
         }
     }
 
@@ -138,7 +138,7 @@ export class TopoPoint {
             // If a [number, number] tuple
             return new TopoPoint(this._Point.subtract({x: arg[0], y: arg[1]}));
         } else {
-            return new TopoPoint(arg);
+            return new TopoPoint(this._Point.subtract(arg));
         }
     }
 
@@ -150,7 +150,7 @@ export class TopoPoint {
             // If a [number, number] tuple
             return new TopoPoint(this._Point.divide({x: arg[0], y: arg[1]}));
         } else {
-            return new TopoPoint(arg);
+            return new TopoPoint(this._Point.divide(arg));
         }
     }
 
@@ -162,7 +162,7 @@ export class TopoPoint {
             // If a [number, number] tuple
             return new TopoPoint(this._Point.modulo({x: arg[0], y: arg[1]}));
         } else {
-            return new TopoPoint(arg);
+            return new TopoPoint(this._Point.modulo(arg));
         }
     }
 }

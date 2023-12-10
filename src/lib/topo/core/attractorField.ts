@@ -190,6 +190,7 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 	public revolve(angle: number) {
+
 		const delta = angle; // TODO angles need to be normalized to 0... 1
 
 		this._shift = delta;
@@ -213,6 +214,7 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 	public expandBy(by: number, along: VectorDirection) {
+
 		for (const att of this.filterAttractors()) {
 			att.moveBy(by, along);
 		}

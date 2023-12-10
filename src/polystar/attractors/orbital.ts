@@ -26,10 +26,10 @@ class Orbital extends AttractorTopo {
 		if (this.anchor) {
 
 			this.topo.reset();
-			this.topo.visibility = false;
+			this.topo.visibility = true;
 
 			this.topo.createCircle(this.anchor, this.length/Math.PI/2);
-			// this.topo.strokeColor = new paper.Color("blue");
+			this.topo.strokeColor = new paper.Color("blue");
 		}
 	}
 

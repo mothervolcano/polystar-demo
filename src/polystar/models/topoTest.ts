@@ -58,18 +58,19 @@ class TopoTest {
 		const testOrbitalField = new OrbitalField(starRadius*2*Math.PI, this._position);
 		const testSpinalField = new SpinalField(starRadius, this._position);
 
-		const testSpine1 = new Spine(100, this._position);
-		const testSpine2 = new Spine(100, this._position);
-		const testSpine3 = new Spine(100, this._position);
-		const testSpine4 = new Spine(100, this._position);
-		const testSpine5 = new Spine(100, this._position);
-		const testOrbital1 = new Orbital(50*2*Math.PI, this._position);
-		const testOrbital2 = new Orbital(50*2*Math.PI, this._position);
-		const testOrbital3 = new Orbital(50*2*Math.PI, this._position);
-		const testOrbital4 = new Orbital(30*2*Math.PI, this._position);
-		const testOrbital5 = new Orbital(30*2*Math.PI, this._position);
+		const testSpine1 = new Spine(100, convertToHyperPoint([100, 25]));
+		const testSpine2 = new Spine(100, convertToHyperPoint([100, 50]));
+		const testSpine3 = new Spine(100, convertToHyperPoint([100, 75]));
+		const testSpine4 = new Spine(100, convertToHyperPoint([100, 100]));
+		const testSpine5 = new Spine(100, convertToHyperPoint([100, 125]));
+		const testOrbital1 = new Orbital(50*2*Math.PI, convertToHyperPoint([250, 70]));
+		const testOrbital2 = new Orbital(50*2*Math.PI, convertToHyperPoint([350, 70]));
+		const testOrbital3 = new Orbital(50*2*Math.PI, convertToHyperPoint([450, 70]));
+		const testOrbital4 = new Orbital(30*2*Math.PI, convertToHyperPoint([550, 70]));
+		const testOrbital5 = new Orbital(30*2*Math.PI, convertToHyperPoint([625, 70]));
 
-
+		// testOrbital1.moveBy(50, 'RAY')
+		// testOrbital1.anchorAt(convertToHyperPoint([500, 500]))
 
 		// testOrbitalField.addAttractor(testOrbital1);
 		// testOrbitalField.addAttractor(testOrbital2);

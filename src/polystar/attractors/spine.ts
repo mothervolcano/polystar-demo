@@ -1,8 +1,7 @@
-import { TopoLocationData, TopoPoint } from "../../lib/topo/topo";
-import AttractorTopo from "../../lib/topo/core/attractorTopo";
+import { TopoLocationData, TopoPoint as TopoPointType } from "../../lib/topo/topo";
 import HyperPoint from "../../lib/topo/core/hyperPoint";
-import { TopoPath } from "../../lib/topo/drawing/paperjs";
-import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
+import AttractorTopo from "../../lib/topo/core/attractorTopo";
+import { TopoPoint, TopoPath } from "../../lib/topo/drawing/paperjs";
 
 
 class Spine extends AttractorTopo {
@@ -23,13 +22,12 @@ class Spine extends AttractorTopo {
 		if (this.anchor) {
 
 			this.topo.reset();
-			const A: TopoPoint = this.anchor.point.subtract([this.length/2, 0]);
-			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
+			const A: TopoPointType = this.anchor.point.subtract([this.length/2, 0]);
+			const B: TopoPointType = this.anchor.point.add([this.length/2, 0]);
 			this.topo.add(A,B);
 
-			this.topo.visibility = false;
-
-			// this.topo.strokeColor = new paper.Color("blue");
+			this.topo.visibility = true;
+			this.topo.strokeColor = new paper.Color("blue");
 		}
 	}
 
@@ -81,8 +79,8 @@ class Spine extends AttractorTopo {
 		const anchor = new HyperPoint(point, hIn, hOut);
 
 		anchor.position = at;
-		anchor.setTangent( new CreateTopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
-		anchor.setNormal( new CreateTopoPoint(normal.multiply(this.spin)) );
+		anchor.setTangent( new TopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
+		anchor.setNormal( new TopoPoint(normal.multiply(this.spin)) );
 		anchor.spin = this.spin;
 		anchor.polarity = this.polarity;
 
