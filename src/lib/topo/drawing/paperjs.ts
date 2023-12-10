@@ -107,23 +107,63 @@ export class TopoPoint {
     }
 
     public add(arg: PointLike | number): TopoPoint {
-        return new TopoPoint(this._Point.add(arg));
+        if (typeof arg === 'number') {
+            // If a number, add it to both x and y
+            return new TopoPoint(this._Point.add({x: arg, y: arg}));
+        } else if (Array.isArray(arg)) {
+            // If a [number, number] tuple
+            return new TopoPoint(this._Point.add({x: arg[0], y: arg[1]}));
+        } else {
+            return new TopoPoint(arg);
+        }
     }
 
     public multiply(arg: PointLike | number): TopoPoint {
-        return new TopoPoint(this._Point.multiply(arg));
+        if (typeof arg === 'number') {
+            // If a number, add it to both x and y
+            return new TopoPoint(this._Point.multiply({x: arg, y: arg}));
+        } else if (Array.isArray(arg)) {
+            // If a [number, number] tuple
+            return new TopoPoint(this._Point.multiply({x: arg[0], y: arg[1]}));
+        } else {
+            return new TopoPoint(arg);
+        }
     }
 
     public subtract(arg: PointLike | number): TopoPoint {
-        return new TopoPoint(this._Point.subtract(arg));
+        if (typeof arg === 'number') {
+            // If a number, add it to both x and y
+            return new TopoPoint(this._Point.subtract({x: arg, y: arg}));
+        } else if (Array.isArray(arg)) {
+            // If a [number, number] tuple
+            return new TopoPoint(this._Point.subtract({x: arg[0], y: arg[1]}));
+        } else {
+            return new TopoPoint(arg);
+        }
     }
 
     public divide(arg: PointLike | number): TopoPoint {
-        return new TopoPoint(this._Point.divide(arg));
+        if (typeof arg === 'number') {
+            // If a number, add it to both x and y
+            return new TopoPoint(this._Point.divide({x: arg, y: arg}));
+        } else if (Array.isArray(arg)) {
+            // If a [number, number] tuple
+            return new TopoPoint(this._Point.divide({x: arg[0], y: arg[1]}));
+        } else {
+            return new TopoPoint(arg);
+        }
     }
 
     public modulo(arg: PointLike | number): TopoPoint {
-        return new TopoPoint(this._Point.modulo(arg));
+        if (typeof arg === 'number') {
+            // If a number, add it to both x and y
+            return new TopoPoint(this._Point.modulo({x: arg, y: arg}));
+        } else if (Array.isArray(arg)) {
+            // If a [number, number] tuple
+            return new TopoPoint(this._Point.modulo({x: arg[0], y: arg[1]}));
+        } else {
+            return new TopoPoint(arg);
+        }
     }
 }
 
