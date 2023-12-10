@@ -23,15 +23,15 @@ function convertToPoint(obj: PointLike): paper.Point {
 export function convertToHyperPoint(obj: PointLike | paper.Segment): HyperPoint {
     const pt = "point" in obj ? obj.point : obj;
 
-    const hIn = "handleIn" in obj && obj.handleIn ? obj.handleIn : null;
-    const hOut = "handleOut" in obj && obj.handleOut ? obj.handleOut : null;
+    const hIn = "handleIn" in obj && obj.handleIn ? obj.handleIn : {x: 0, y: 0};
+    const hOut = "handleOut" in obj && obj.handleOut ? obj.handleOut : {x: 0, y: 0};
 
     const P = new HyperPoint(pt, hIn, hOut);
     P.spin = 1;
 
     if ("location" in obj) {
-        P.setTangent(obj.location.tangent);
-        P.setNormal(obj.location.normal);
+        P.setTangent(new TopoPoint(obj.location.tangent));
+        P.setNormal(new TopoPoint(obj.location.normal));
     }
 
     return P as HyperPoint;

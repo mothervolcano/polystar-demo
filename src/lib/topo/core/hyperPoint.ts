@@ -203,8 +203,8 @@ class HyperPoint {
 	public clone(): HyperPoint {
 		const _clone = new HyperPoint(
 			this._point.clone(),
-			this._handleIn ? this._handleIn.clone() : null,
-			this._handleOut ? this._handleOut.clone() : null,
+			this._handleIn = this._handleIn.clone(),
+			this._handleOut = this._handleOut.clone()
 		);
 
 		_clone.position = this._position;

@@ -7,11 +7,10 @@ import {
 	normalize,
 } from "../../lib/topo/utils/helpers";
 import {
-	convertToHyperPoint,
-	convertToSegment,
+	convertToHyperPoint
 } from "../../lib/topo/utils/converters";
 import { TopoPath } from "../../lib/topo/drawing/paperjs";
-import { PointLike } from "../../lib/topo/topo";
+import { HyperPoint, PointLike } from "../../lib/topo/topo";
 import { Color } from "paper";
 
 
@@ -19,7 +18,7 @@ class Polystar {
 	private _path: TopoPath;
 
 	private _radius: number;
-	private _position: PointLike;
+	private _position: HyperPoint;
 
 	private _hasFill: boolean = false;
 	private _color: paper.Color = new Color("#000000");
