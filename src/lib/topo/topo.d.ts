@@ -1,6 +1,6 @@
 
 export type PointLike =
-  | IHyperPoint
+  | HyperPoint
   | [number, number]
   | { x: number; y: number }
   | { width: number; height: number }
@@ -13,16 +13,12 @@ export type RectangleLike =
   | { x: number; y: number; width: number; height: number }
   | { from: PointLike; to: PointLike };
 
+export type BooleanLike = Boolean | 0 | 1;
+
 export type OrientationType = -1 | 1;
 export type PolarityType = -1 | 1;
-
 export type VectorDirection = "TAN" | "RAY" | "VER" | "HOR";
 
-export type UnitIntervalNumber = number & { 0: number; 1: number };
-
-// export type UnitIntervalNumber<T extends number = number> = T & { 0: number, 1: number };
-
-export type BooleanLike = Boolean | 0 | 1;
 
 export interface TopoLocationData {
   point: TopoPoint;
@@ -198,7 +194,7 @@ declare class TopoPath extends DisplayObject {
 
   createCircle(center: PointLike, radius: number): TopoPath;
   addPoint(point: HyperPoint): void;
-  add(...point: (IHyperPoint | PointLike | number[])[]): void;
+  add(...point: (HyperPoint | PointLike | number[])[]): void;
   insert(index: number, point: HyperPoint | PointLike): void;
   reverse(): void;
   scale(hor: number, ver: number, center?: PointLike): void;
@@ -216,9 +212,8 @@ export interface IGroup {
 
   visibility: boolean;
   position: PointLike;
-  pivot: IPoint;
+  pivot: TopoPoint;
 
   rotate(angle: number, center?: PointLike): void;
-
   remove(): void;
 }
