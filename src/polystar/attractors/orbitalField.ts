@@ -1,11 +1,10 @@
-import { TopoPoint, TopoLocationData } from "../../lib/topo/topo";
-import AttractorField from "../../lib/topo/core/attractorField";
+import { TopoLocationData, HyperPoint as HyperPointType } from "../../lib/topo/topo";
 import HyperPoint from "../../lib/topo/core/hyperPoint";
-import { TopoPath } from "../../lib/topo/drawing/paperjs";
-import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
+import AttractorField from "../../lib/topo/core/attractorField";
+import { TopoPoint, TopoPath } from "../../lib/topo/drawing/paperjs";
 
 class OrbitalField extends AttractorField {
-	constructor(length: number, anchor?: HyperPoint) {
+	constructor(length: number, anchor?: HyperPointType) {
 		const topoPath = new TopoPath();
 
 		super(topoPath, anchor);
@@ -63,7 +62,7 @@ class OrbitalField extends AttractorField {
 	}
 
 	// at is provided by attractors that have paths that are non-linear ie. the input location doesn't match the mapped location.
-	createAnchor({ point, tangent, normal, curveLength, pathLength, at }: TopoLocationData): HyperPoint {
+	createAnchor({ point, tangent, normal, curveLength, pathLength, at }: TopoLocationData): HyperPointType {
 		const factor = [0, 0.25, 0.5, 0.75].includes(at) ? 1 / 3 : curveLength / pathLength;
 
 		const hIn = tangent.multiply(curveLength * factor).multiply(-1);
@@ -72,8 +71,8 @@ class OrbitalField extends AttractorField {
 		const anchor = new HyperPoint(point, hIn, hOut);
 
 		anchor.position = at;
-		anchor.setTangent( new CreateTopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
-		anchor.setNormal( new CreateTopoPoint(normal.multiply(this.spin)) );
+		anchor.setTangent( new TopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
+		anchor.setNormal( new TopoPoint(normal.multiply(this.spin)) );
 		anchor.spin = this.spin;
 		anchor.polarity = this.polarity;
 

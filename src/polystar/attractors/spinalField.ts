@@ -1,14 +1,14 @@
-import { TopoPoint, TopoLocationData } from "../../lib/topo/topo";
-import AttractorField from "../../lib/topo/core/attractorField";
+import { TopoPoint as TopoPointType, TopoLocationData, HyperPoint as HyperPointType } from "../../lib/topo/topo";
 import HyperPoint from "../../lib/topo/core/hyperPoint";
+import AttractorField from "../../lib/topo/core/attractorField";
 import { TopoPath } from "../../lib/topo/drawing/paperjs";
-import { TopoPoint as CreateTopoPoint } from '../../lib/topo/drawing/paperjs';
+import { TopoPoint } from '../../lib/topo/drawing/paperjs';
 
 class SpinalField extends AttractorField {
 	private _alternator: boolean = false;
 	private _mode: string;
 
-	constructor(length: number, anchor?: HyperPoint, mode: string = "DIRECTED") {
+	constructor(length: number, anchor?: HyperPointType, mode: string = "DIRECTED") {
 		const topoPath = new TopoPath();
 
 		super(topoPath, anchor);
@@ -29,8 +29,8 @@ class SpinalField extends AttractorField {
 		if (this.anchor) {
 
 			this.topo.reset();
-			const A: TopoPoint = this.anchor.point.subtract([this.length/2, 0]);
-			const B: TopoPoint = this.anchor.point.add([this.length/2, 0]);
+			const A: TopoPointType = this.anchor.point.subtract([this.length/2, 0]);
+			const B: TopoPointType = this.anchor.point.add([this.length/2, 0]);
 			this.topo.add(A,B);
 
 			this.topo.visibility = false;
@@ -99,7 +99,7 @@ class SpinalField extends AttractorField {
 	}
 
 	// at is provided by attractors that have paths that are non-linear ie. the input location doesn't match the mapped location.
-	createAnchor({ point, tangent, normal, curveLength, pathLength, at }: TopoLocationData): HyperPoint {
+	createAnchor({ point, tangent, normal, curveLength, pathLength, at }: TopoLocationData): HyperPointType {
 		const factor = [0, 0.25, 0.5, 0.75].includes(at) ? 1 / 3 : curveLength / pathLength;
 
 		const hIn = tangent.multiply(curveLength * factor).multiply(-1);
@@ -108,8 +108,8 @@ class SpinalField extends AttractorField {
 		const anchor = new HyperPoint(point, hIn, hOut);
 
 		anchor.position = at;
-		anchor.setTangent( new CreateTopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
-		anchor.setNormal( new CreateTopoPoint(normal.multiply(this.spin)) );
+		anchor.setTangent( new TopoPoint(tangent.multiply(this.spin)) ); // HACK: because the path is flipped using scale() the vectors need to be inverted
+		anchor.setNormal( new TopoPoint(normal.multiply(this.spin)) );
 		anchor.spin = this.spin;
 		anchor.polarity = this.polarity;
 
