@@ -177,7 +177,7 @@ declare class TopoPath extends DisplayObject {
   position: PointLike;
   pivot: PointLike;
   center: PointLike;
-  rotation: PointLike;
+  rotation: number;
   strokeColor: paper.Color | null;
   fillColor: paper.Color | null;
   visibility: boolean;
