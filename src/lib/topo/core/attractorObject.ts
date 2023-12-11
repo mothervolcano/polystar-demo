@@ -128,43 +128,43 @@ abstract class AttractorObject {
 		this._length = value;
 	}
 
-	 setAxisAngle(angle: number): void {
+	setAxisAngle(angle: number): void {
 		this._axisAngle = angle;
 	}
 
-	 setAxisLocked(value: boolean): void {
+	setAxisLocked(value: boolean): void {
 		this._axisLocked = value;
 	}
 
-	 setSelfAnchored(value: boolean): void {
+	setSelfAnchored(value: boolean): void {
 		this._selfAnchored = value;
 	}
 
-	 setSkip(value: boolean): void {
+	setSkip(value: boolean): void {
 		this._skip = value;
 	}
 
+	// -----------------------------------------------------
+	// Implemented by the abstract sub-classes
+
 	abstract update(anchor?: HyperPoint): void;
-
 	abstract configureAttractor(): void;
-	abstract adjustToPosition(): void;
-	abstract adjustToSpin(): void;
-	abstract adjustToPolarity(): void;
-
-	abstract locate(at: number, orient?: boolean): HyperPoint | HyperPoint[];
-	abstract getTopoLocationAt(at: number): TopoLocationData;
-	abstract createAnchor(topoLocationData: TopoLocationData): HyperPoint;
-
-	// -----------------------------------------------------------------------------
+	public abstract locate(at: number, orient?: boolean): HyperPoint | HyperPoint[];
+	public abstract rotate(angle: number): void;
+	public abstract moveBy( by: number, along: VectorDirection): void
+	public abstract scale( hor: number, ver: number ): void
+	public abstract remove(): void;
 	
-	abstract draw(): void;
-	abstract rotate(angle: number): void;
-	abstract moveBy( by: number, along: VectorDirection): void
-	abstract scale( hor: number, ver: number ): void;
+	// -----------------------------------------------------
+	// Implemented by the concrete sub-classes
 
-	// -----------------------------------------------------------------------------
-
-	setAnchor(aAnchor?: HyperPoint) {
+	protected abstract getTopoLocationAt(at: number): TopoLocationData;
+	protected abstract createAnchor(topoLocationData: TopoLocationData): HyperPoint;	
+	protected abstract adjustToPosition(): void;
+	protected abstract adjustToSpin(): void;
+	protected abstract adjustToPolarity(): void;
+	protected abstract draw(): void;
+	protected setAnchor(aAnchor?: HyperPoint) {
 		if (aAnchor) this._anchor = aAnchor;
 	}
 }

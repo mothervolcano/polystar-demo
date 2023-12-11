@@ -21,7 +21,7 @@ class Orbital extends AttractorTopo {
 		this.draw();
 	}
 
-	draw() {
+	protected draw() {
 
 		if (this.anchor) {
 
@@ -33,67 +33,22 @@ class Orbital extends AttractorTopo {
 		}
 	}
 
-	configureAttractor() {
+	protected getTopoLocationAt(at: number): TopoLocationData {
 
-		if (this.field) {
+		if ( !this.topo ) {
 
-			this.setOrientationDeterminator(this.field.determineOrientation)
-			this.setSpinDeterminator(this.field.determineSpin)
-			this.setPolarityDeterminator(this.field.determinePolarity)
+			throw new Error(`ERROR @Spine.getTopoLocationAt(${at}) ! Topo path is missing`)
 		}
+
+		const loc = this.topo.getLocationAt(this.topo.length * at);
+
+		return {
+			...loc,
+			at: at,
+		};
 	}
 
-	adjustToPosition() {
-
-		if (this.determineOrientation(this.anchor.position)) {
-			this.setAxisAngle(0);
-		} else if (!this.determineOrientation(this.anchor.position)) {
-			this.setAxisAngle(-180);
-		} else {
-			throw new Error("POSSIBLY TRYING TO ANCHOR OUTSIDE OF FIELDs BOUNDS");
-		}
-	}
-
-
-	// protected adjustRotationToPosition( position: number ) {
-
-	// 	if ( position > 0.25 && position < 0.75 ) {
-
-	// 		return 0;
-
-	// 	} else {
-
-	// 		return -180;
-	// 	}
-	// };
-
-	adjustToSpin() {
-		if (this.determineSpin(this.anchor.position)) {
-			this.scale(-1, 1);
-			this.setSpin(-1);
-		} else if (!this.determineSpin(this.anchor.position)) {
-			this.scale(1, 1);
-			this.setSpin(1);
-		} else {
-			throw new Error("POSSIBLY TRYING TO PLACE THE ATTRACTOR OUTSIDE OF FIELDs BOUNDS");
-		}
-	}
-
-	// public adjustToOrientation( anchor: any ) {
-
-	// 	if ( anchor.position > 0.25 && anchor.position < 0.75 ) {
-
-	// 		this.scale( -1, 1 );
-	// 		this.orientation = -1;
-
-	// 	} else {
-
-	// 		this.scale( 1, 1 );
-	// 		this.orientation = 1;
-	// 	}
-	// };
-
-	createAnchor(locationData: TopoLocationData): HyperPoint {
+	protected createAnchor(locationData: TopoLocationData): HyperPoint {
 		const { point, tangent, normal, curveLength, pathLength, at } = locationData;
 
 		const factor = [0, 0.25, 0.5, 0.75].includes(at) ? 1 / 3 : curveLength / pathLength;
@@ -113,27 +68,43 @@ class Orbital extends AttractorTopo {
 		return anchor;
 	}
 
+	configureAttractor() {
 
-	adjustToPolarity() {
+		if (this.field) {
+
+			this.setOrientationDeterminator(this.field.determineOrientation)
+			this.setSpinDeterminator(this.field.determineSpin)
+			this.setPolarityDeterminator(this.field.determinePolarity)
+		}
+	}
+
+	protected adjustToPosition() {
+
+		if (this.determineOrientation(this.anchor.position)) {
+			this.setAxisAngle(0);
+		} else if (!this.determineOrientation(this.anchor.position)) {
+			this.setAxisAngle(-180);
+		} else {
+			throw new Error("POSSIBLY TRYING TO ANCHOR OUTSIDE OF FIELDs BOUNDS");
+		}
+	}
+
+	protected adjustToSpin() {
+		if (this.determineSpin(this.anchor.position)) {
+			this.scale(-1, 1);
+			this.setSpin(-1);
+		} else if (!this.determineSpin(this.anchor.position)) {
+			this.scale(1, 1);
+			this.setSpin(1);
+		} else {
+			throw new Error("POSSIBLY TRYING TO PLACE THE ATTRACTOR OUTSIDE OF FIELDs BOUNDS");
+		}
+	}
+
+	protected adjustToPolarity() {
 		// TODO
 		this.setPolarity(1);
-	}
-
-	getTopoLocationAt(at: number): TopoLocationData {
-
-		if ( !this.topo ) {
-
-			throw new Error(`ERROR @Spine.getTopoLocationAt(${at}) ! Topo path is missing`)
-		}
-
-		const loc = this.topo.getLocationAt(this.topo.length * at);
-
-		return {
-			...loc,
-			at: at,
-		};
-	}
-	
+	}	
 }
 
 

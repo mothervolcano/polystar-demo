@@ -24,7 +24,7 @@ class SpinalField extends AttractorField {
 		this._alternator = !this._alternator;
 	}
 
-	draw() {
+	protected draw() {
 
 		if (this.anchor) {
 
@@ -72,7 +72,7 @@ class SpinalField extends AttractorField {
 		}
 	}
 
-	adjustToPosition() {
+	protected adjustToPosition() {
 		if (this.determineOrientation(this.anchor.position)) {
 			this.setAxisAngle(0);
 		} else if (!this.determineOrientation(this.anchor.position)) {
@@ -82,7 +82,7 @@ class SpinalField extends AttractorField {
 		}
 	}
 
-	adjustToSpin() {
+	protected adjustToSpin() {
 		if (this.determineSpin(this.anchor.position)) {
 			this.setSpin(1);
 		} else if (!this.determineSpin(this.anchor.position)) {
@@ -92,7 +92,7 @@ class SpinalField extends AttractorField {
 		}
 	}
 
-	adjustToPolarity() {
+	protected adjustToPolarity() {
 		// TODO
 
 		this.setPolarity(1);
@@ -116,7 +116,7 @@ class SpinalField extends AttractorField {
 		return anchor;
 	}
 
-	getTopoLocationAt(at: number): TopoLocationData {
+	protected getTopoLocationAt(at: number): TopoLocationData {
 		if (!this.topo) {
 			throw new Error(`ERROR @Spine.getTopoLocationAt(${at}) ! Topo path is missing`);
 		}

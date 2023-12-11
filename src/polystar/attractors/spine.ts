@@ -17,7 +17,7 @@ class Spine extends AttractorTopo {
 		this.draw();
 	}
 
-	draw() {
+	protected draw() {
 
 		if (this.anchor) {
 
@@ -41,7 +41,7 @@ class Spine extends AttractorTopo {
 		}
 	}
 
-	adjustToPosition() {
+	protected adjustToPosition() {
 
 		if (this.determineOrientation(this.anchor.position)) {
 			this.setAxisAngle(0);
@@ -52,7 +52,7 @@ class Spine extends AttractorTopo {
 		}
 	}
 
-	adjustToSpin() {
+	protected adjustToSpin() {
 		if (this.determineSpin(this.anchor.position)) {
 			this.setSpin(1);
 		} else if (!this.determineSpin(this.anchor.position)) {
@@ -62,7 +62,7 @@ class Spine extends AttractorTopo {
 		}
 	}
 
-	adjustToPolarity() {
+	protected adjustToPolarity() {
 		// TODO
 		this.setPolarity(1);
 	}
@@ -87,7 +87,7 @@ class Spine extends AttractorTopo {
 		return anchor;
 	}
 
-	getTopoLocationAt(at: number): TopoLocationData {
+	protected getTopoLocationAt(at: number): TopoLocationData {
 
 		if ( !this.topo ) {
 

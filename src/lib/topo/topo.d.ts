@@ -29,6 +29,13 @@ export interface TopoLocationData {
   at: number;
 }
 
+
+/***************************************************************************************
+ * Base class in a composite pattern architecture. AttractorObject provides the interface 
+ * and shared methods for the Attractor classes. It is extended by AttractorTopo, 
+ * the leaf component, and AttractorField, the composite node.
+ */
+
 declare class AttractorObject {
 
   readonly determineOrientation: Function;
@@ -39,76 +46,56 @@ declare class AttractorObject {
 
   addAttractor(attractor: AttractorObject): AttractorObject;
   getAttractor(index: number): AttractorObject;
+  locate(at: number, orient?: boolean): HyperPoint | HyperPoint[];
+  moveBy( by: number, along: VectorDirection): void
+  rotate(angle: number): void;
+  scale( hor: number, ver: number ): void;
+  remove(): void;
 }
 
-declare class AttractorTopo extends AttractorObject {}
+declare class AttractorTopo extends AttractorObject {
 
-declare class AttractorField extends AttractorObject {}
+  constructor(topo: TopoPath, anchor?: HyperPoint)
+}
 
-declare class OrbitalField extends AttractorField {}
+declare class AttractorField extends AttractorObject {
 
-declare class SpinalField extends AttractorField {}
+  constructor(topo: TopoPath, anchor?: HyperPoint)
 
-declare class Spine extends AttractorTopo {}
+  addAttractors(attractors: AttractorObject[]): void
+  locateOn(iAttractor: number, at: number, orient: boolean = false): HyperPoint | HyperPoint[];
+  locateOnSelf(at: number, orient: boolean = false): HyperPoint;
+  revolve(angle: number): AttractorField;
+  compress(start: number, end: number, alignAxis: boolean = true): AttractorField;
+  expandBy(by: number, along: VectorDirection): AttractorField;
+}
 
-declare class Orbital extends AttractorTopo {}
+declare class OrbitalField extends AttractorField {
+  constructor(length: number, anchor?: HyperPointType)
+}
 
-// export interface IAttractor {
-//   topo: IPath;
-//   field: any;
-//   anchor: IHyperPoint;
-//   spin: number;
-//   polarity: number;
-//   axisAngle: number;
-//   axisLocked: boolean;
-//   selfAnchored: boolean;
-//   skip: boolean;
-//   setField(aAttractorField: any): void;
-//   setAnchor(aAnchor: IHyperPoint): void;
-//   setAxisAngle(angle: number): void;
-//   setSelfAnchored(value: boolean): void;
-//   setAxisLocked(value: boolean): void;
-//   setSkip(value: boolean): void;
-//   setOrientationDeterminator(fn: Function);
-//   setSpinDeterminator(fn: Function);
-//   setPolarityDeterminator(fn: Function);
+declare class Orbital extends AttractorTopo {
+  constructor(length: number, anchor: HyperPoint);
+}
 
-//   anchorAt(aAnchor: IHyperPoint, along?: VectorDirection): void;
-//   update(): void;
-//   adjustToPosition(): void;
-//   adjustToSpin(): void;
-//   adjustToPolarity(): void;
-//   getTopoLocationAt(at: number): TopoLocationData;
-//   addAttractor(aAttractor: IAttractor, at?: number): IAttractor;
-//   getAttractor(i: number): IAttractor;
-//   locate(at: number, orient?: boolean): IHyperPoint;
-//   rotate(angle: number): void;
-//   configureAttractor(): void;
-// }
+declare class SpinalField extends AttractorField {
+  constructor(length: number, anchor?: HyperPointType, mode?: string)
+}
 
-// export interface IAttractorTopo extends IAttractor {}
+declare class Spine extends AttractorTopo {
+  constructor(length: number, anchor?: HyperPoint);
+}
 
-// export interface IAttractorField extends IAttractor {
-//   setOrientationDeterminator(fn: Function);
-//   setSpinDeterminator(fn: Function);
-//   setPolarityDeterminator(fn: Function);
-//   configureField(): void;
-//   filterAttractors(): IAttractor[];
-//   locateOn(iAttractor: number, at: number, orient?: boolean): IHyperPoint;
-//   locateOn(iAttractor: number, at: number, orient: boolean = false): IHyperPoint;
-// }
 
-/**
- * Represents a hyperpoint in a drawing.
- *
- * A hyperpoint is a point extracted from a curve that serves as a guide for drawing.
+
+/***************************************************************************************
+ * A hyperPoint is a point extracted from a curve that serves as a guide for drawing.
  * It encapsulates the position, tangent, normal, and handles of the point.
  * The hyperpoint is primarily defined at the moment of extraction from the curve.
  *
  * The HyperPoint class provides methods to manipulate and transform the point along its tangent or normal vector.
- * It also allows setting the spin or orientation of the curve, as well as retrieving a segment object for creating or adding to a Path object.
+ * It also allows setting the spin or orientation of the curve.
  *
- * By retaining the tangent, normal, and other properties of the hyperpoint, it remains closely related to the underlying curve, enabling consistent modifications and adjustments to the drawing.
  */
 
 declare class HyperPoint {
@@ -135,6 +122,11 @@ declare class HyperPoint {
   clone(): HyperPoint;
 }
 
+/***************************************************************************************
+ * Leaf component of a composite design for all the objects that require being rendered to the screen.
+ * Works with DisplayNode, the node component.
+ */
+
 declare class DisplayObject {
   isRendered: boolean;
   isRemoved: boolean;
@@ -151,6 +143,14 @@ declare class DisplayObject {
   placeAt(position: PointLike, pivot?: PointLike): void;
   remove(): void;
 }
+
+/***************************************************************************************
+* TopoPoint acts as a wrapper for the Paper.js Point class, facilitating its integration
+ * and use within the current application. This class is designed with the intent of 
+ * gradually reducing dependency on Paper.js, aiming for a more flexible and independent
+ * implementation.
+ *
+ */
 
 declare class TopoPoint {
   x: number;
@@ -171,6 +171,10 @@ declare class TopoPoint {
   divide(arg: PointLike | number): TopoPoint;
   modulo(arg: PointLike | number): TopoPoint;
 }
+
+/***************************************************************************************
+ * Wrapper for the Paper.js Path class. Refer to TopoPoint for more info
+ */
 
 declare class TopoPath extends DisplayObject {
   size: SizeLike;

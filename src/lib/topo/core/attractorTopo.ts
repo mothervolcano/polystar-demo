@@ -46,7 +46,7 @@ abstract class AttractorTopo extends AttractorObject {
 		this.topo.placeAt(this.anchor.point, this.topo.position);
 	}
 
-	locate(at: number, orient: boolean = false): HyperPoint {
+	public locate(at: number, orient: boolean = false): HyperPoint {
 		const locationData = this.getTopoLocationAt(at);
 
 		if (locationData) {
@@ -89,6 +89,10 @@ abstract class AttractorTopo extends AttractorObject {
 
 		return this;
 	};
+
+	public remove() {
+
+	}
 }
 
 export default AttractorTopo;

@@ -1,4 +1,4 @@
-import { TopoPath, HyperPoint, VectorDirection } from "../topo";
+import { TopoPath, HyperPoint, VectorDirection, AttractorTopo } from "../topo";
 import AttractorObject from "./attractorObject";
 
 abstract class AttractorField extends AttractorObject {
@@ -14,42 +14,6 @@ abstract class AttractorField extends AttractorObject {
 		super(topo, anchor);
 
 		return this;
-	}
-
-	public addAttractor(att: AttractorObject, at?: number): AttractorObject {
-		this._attractors.push(att);
-
-		att.setField(this);
-		att.configureAttractor();
-
-		if (at && typeof at === "number") {
-			const anchor = this.locateOnSelf(at);
-
-			att.setSelfAnchored(true);
-			att.anchorAt(anchor);
-		} else {
-			this.update();
-		}
-
-		return att;
-	}
-
-	public addAttractors(attractors: AttractorObject[]): void {
-		this._attractors = [
-			...this._attractors,
-			...attractors.map((att) => {
-				att.setField(this);
-				att.configureAttractor();
-				return att;
-			}),
-		];
-
-		this.update();
-	}
-
-	filterAttractors() {
-		const attractors = this._attractors.filter((att) => !att.selfAnchored);
-		return attractors;
 	}
 
 	update() {
@@ -93,10 +57,6 @@ abstract class AttractorField extends AttractorObject {
 		}
 	}
 
-	getAttractor(i: number): AttractorObject {
-		return this._attractors[i];
-	}
-
 	anchorAt(anchor: HyperPoint, along: VectorDirection = "RAY"): void {
 		if (!this.topo) {
 			throw new Error(`ERROR @AttractorTopo.anchorAt(...): path is missing!`);
@@ -125,7 +85,47 @@ abstract class AttractorField extends AttractorObject {
 		this.update();
 	}
 
-	locate(at: number, orient: boolean = false): HyperPoint[] {
+	private filterAttractors() {
+		const attractors = this._attractors.filter((att) => !att.selfAnchored);
+		return attractors;
+	}
+
+	public addAttractor(att: AttractorObject, at?: number): AttractorObject {
+		this._attractors.push(att);
+
+		att.setField(this);
+		att.configureAttractor();
+
+		if (at && typeof at === "number") {
+			const anchor = this.locateOnSelf(at);
+
+			att.setSelfAnchored(true);
+			att.anchorAt(anchor);
+		} else {
+			this.update();
+		}
+
+		return att;
+	}
+
+	public addAttractors(attractors: AttractorObject[]): void {
+		this._attractors = [
+			...this._attractors,
+			...attractors.map((att) => {
+				att.setField(this);
+				att.configureAttractor();
+				return att;
+			}),
+		];
+
+		this.update();
+	}
+
+	public getAttractor(i: number): AttractorObject {
+		return this._attractors[i];
+	}
+
+	public locate(at: number, orient: boolean = false): HyperPoint[] {
 		const attractors = this.filterAttractors();
 		const anchors = attractors.filter((att) => !att.skip).map((att) => att.locate(at, orient));
 
@@ -133,11 +133,11 @@ abstract class AttractorField extends AttractorObject {
 		return anchors.flat();
 	}
 
-	locateOn(iAttractor: number, at: number, orient: boolean = false): HyperPoint | HyperPoint[] {
+	public locateOn(iAttractor: number, at: number, orient: boolean = false): HyperPoint | HyperPoint[] {
 		return this.getAttractor(iAttractor).locate(at, orient);
 	}
 
-	locateOnSelf(at: number, orient: boolean = false) {
+	public locateOnSelf(at: number, orient: boolean = false): HyperPoint {
 		const locationData = this.getTopoLocationAt(at);
 
 		if (locationData) {
@@ -190,7 +190,6 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 	public revolve(angle: number) {
-
 		const delta = angle; // TODO angles need to be normalized to 0... 1
 
 		this._shift = delta;
@@ -214,7 +213,6 @@ abstract class AttractorField extends AttractorObject {
 	}
 
 	public expandBy(by: number, along: VectorDirection) {
-
 		for (const att of this.filterAttractors()) {
 			att.moveBy(by, along);
 		}
@@ -222,7 +220,7 @@ abstract class AttractorField extends AttractorObject {
 		return this;
 	}
 
-	remove() {}
+	public remove() {}
 }
 
 export default AttractorField;
