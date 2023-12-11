@@ -63,15 +63,15 @@ declare class AttractorField extends AttractorObject {
   constructor(topo: TopoPath, anchor?: HyperPoint)
 
   addAttractors(attractors: AttractorObject[]): void
-  locateOn(iAttractor: number, at: number, orient: boolean = false): HyperPoint | HyperPoint[];
-  locateOnSelf(at: number, orient: boolean = false): HyperPoint;
+  locateOn(iAttractor: number, at: number, orient: boolean): HyperPoint | HyperPoint[];
+  locateOnSelf(at: number, orient: boolean): HyperPoint;
   revolve(angle: number): AttractorField;
-  compress(start: number, end: number, alignAxis: boolean = true): AttractorField;
+  compress(start: number, end: number, alignAxis: boolean): AttractorField;
   expandBy(by: number, along: VectorDirection): AttractorField;
 }
 
 declare class OrbitalField extends AttractorField {
-  constructor(length: number, anchor?: HyperPointType)
+  constructor(length: number, anchor?: HyperPoint)
 }
 
 declare class Orbital extends AttractorTopo {
@@ -79,7 +79,7 @@ declare class Orbital extends AttractorTopo {
 }
 
 declare class SpinalField extends AttractorField {
-  constructor(length: number, anchor?: HyperPointType, mode?: string)
+  constructor(length: number, anchor?: HyperPoint, mode?: string)
 }
 
 declare class Spine extends AttractorTopo {
