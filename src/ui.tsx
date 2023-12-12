@@ -15,6 +15,7 @@ import { reset, resize, initModel, configure, draw, extractPath } from "./stage"
 import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
 import ShapeContext from "./ShapeContext";
+import usePaperStage from "./hooks/usePaperStage";
 
 // --------------------------------------------------------------
 // HELPERS
@@ -37,7 +38,9 @@ const Layout = ({ orientation, children }: any) => {
 	if (orientation === "LANDSCAPE") {
 		return (
 			<Flex direction="row">
-				<div style={{ position: "relative", minWidth: "300px", maxWidth: "25%", overflowY: "auto" }}>{children[0]}</div>
+				<div style={{ position: "relative", minWidth: "300px", maxWidth: "25%", overflowY: "auto" }}>
+					{children[0]}
+				</div>
 				<div style={{ position: "relative", minWidth: "250px", flexGrow: "1" }}>{children[1]}</div>
 			</Flex>
 		);
@@ -61,8 +64,7 @@ const Layout = ({ orientation, children }: any) => {
 // -------------------------------------------------------------------------------------------------------
 
 const UI = () => {
-
-	const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
+	// const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
 	const [initialized, setInitialized] = useState<boolean>(false);
 	const [stageSize, setStageSize] = useState<{ width: number; height: number } | null>(null);
 	const [models, currentModel, setCurrentModel] = useModel();
@@ -78,8 +80,10 @@ const UI = () => {
 	// -------------------------------------------------------------------------------------------------------
 	// HOOKS
 
+	const [canvasRef, isPaperReady] = usePaperStage();
+
 	useEffect(() => {
-		if (!isPaperLoaded) {
+		if (!isPaperReady) {
 			console.log("PAPER ISN'T LOADED");
 			return () => {};
 		}
@@ -103,13 +107,13 @@ const UI = () => {
 		if (!initialized) {
 			setInitialized(true);
 		}
-	}, [isPaperLoaded, stageSize]);
+	}, [isPaperReady, stageSize]);
 
 	// ......................................................
 	// Shape modifier controls changed
 
 	useEffect(() => {
-		if (!isPaperLoaded) {
+		if (!isPaperReady) {
 			console.log("PAPER ISN'T LOADED");
 			return () => {};
 		}
@@ -127,7 +131,7 @@ const UI = () => {
 	// Color settings changed
 
 	useEffect(() => {
-		if (!isPaperLoaded) {
+		if (!isPaperReady) {
 			console.log("PAPER ISN'T LOADED");
 			return () => {};
 		}
@@ -149,7 +153,7 @@ const UI = () => {
 	// .....................................................
 
 	useEffect(() => {
-		if (!isPaperLoaded) {
+		if (!isPaperReady) {
 			console.log("PAPER ISN'T LOADED");
 			return () => {};
 		}
@@ -303,7 +307,10 @@ const UI = () => {
 	const stage = () => {
 		return (
 			<div style={stageStyle}>
-				<PaperStage onPaperLoad={setIsPaperLoaded} onResize={setStageSize} />
+				{/*<PaperStage onPaperLoad={setIsPaperLoaded} onResize={setStageSize} />*/}
+				<div style={{ width: "100%", height: "100%" }}>
+					<canvas style={{ position: "relative", width: "100%", height: "100%" }} ref={canvasRef}></canvas>
+				</div>
 				{!isLandscape && title()}
 				<div
 					style={{
@@ -316,7 +323,7 @@ const UI = () => {
 					{isLandscape && (
 						<>
 							<Flex justify="flex-end">
-								<Button style={{}} bg={dark}  m="1rem" variant="filled" onClick={saveShape}>
+								<Button style={{}} bg={dark} m="1rem" variant="filled" onClick={saveShape}>
 									Save
 								</Button>
 							</Flex>

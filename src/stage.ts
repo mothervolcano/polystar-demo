@@ -1,5 +1,5 @@
 import { Layer } from "paper";
-import { paperScope } from "./components/PaperStage";
+import { paperScope } from "./hooks/usePaperStage";
 
 let view: any;
 let layer: any;
