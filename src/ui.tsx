@@ -1,4 +1,4 @@
-import { SyntheticEvent, useContext, useEffect, useRef, useState } from "react";
+import { SyntheticEvent, useContext, useEffect, useState } from "react";
 
 import { Container, Flex, Stack, Title, Text, DEFAULT_THEME, Space, ColorPicker, Button, Divider } from "@mantine/core";
 
@@ -7,15 +7,13 @@ import { useMediaQuery } from "@mantine/hooks";
 // .......................................................
 
 import { Model, ParamSet } from "./polystar";
-
-import useModel from "./hooks/useModel";
-import PaperStage from "./components/PaperStage";
-
 import { reset, resize, initModel, configure, draw, extractPath } from "./stage";
-import Gallery from "./components/Gallery";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
+import useModel from "./hooks/useModel";
 import ShapeContext from "./ShapeContext";
-import usePaperStage from "./hooks/usePaperStage";
+
+import PaperStage from "./components/PaperStage"
+import Gallery from "./components/Gallery";
 
 // --------------------------------------------------------------
 // HELPERS
@@ -34,7 +32,6 @@ function parseParams(updatedParams: ParamSet) {
 // LAYOUT COMPONENTS
 
 const Layout = ({ orientation, children }: any) => {
-	// ...
 	if (orientation === "LANDSCAPE") {
 		return (
 			<Flex direction="row">
@@ -45,11 +42,6 @@ const Layout = ({ orientation, children }: any) => {
 			</Flex>
 		);
 	} else if (orientation === "PORTRAIT") {
-		// return (<div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
-		// 			{/*<div style={{minHeight: "200px", maxHeight: "30%"}}>{children[1]}</div>*/}
-		// 			<div style={{height: "20vh"}}>{children[1]}</div>
-		// 			<div style={{minWidth: "250px", flexGrow: "1"}}>{children[0]}</div>
-		// 		</div>)
 		return (
 			<Stack justify="flex-start" align="stretch">
 				<div style={{ position: "relative" }}>{children[1]}</div>
@@ -61,36 +53,25 @@ const Layout = ({ orientation, children }: any) => {
 	}
 };
 
+
 // -------------------------------------------------------------------------------------------------------
+// MAIN COMPONENT
 
 const UI = () => {
-	// const [isPaperLoaded, setIsPaperLoaded] = useState<boolean>(false);
 	const [initialized, setInitialized] = useState<boolean>(false);
-	const [stageSize, setStageSize] = useState<{ width: number; height: number } | null>(null);
 	const [models, currentModel, setCurrentModel] = useModel();
-	const [paramsForConsole, setParamsForConsole] = useState<ParamSet | null>(null);
+	const [consoleParams, setConsoleParams] = useState<ParamSet | null>(null);
 	const [hasFill, setHasFill] = useState<boolean>(true);
 	const [artColor, setArtColor] = useState("#000000");
 	const [scaleCtrl, setScaleCtrl] = useState(3);
 
 	const { shapeCollection, setShapeCollection } = useContext(ShapeContext);
 
-	// const [shapeCollection, setShapeCollection] = useState<savedShape[]>(new Array(6).fill({timestamp: null, svg: null}))
-
-	// -------------------------------------------------------------------------------------------------------
-	// HOOKS
-
-	const [canvasRef, isPaperReady] = usePaperStage();
-
-	useEffect(() => {
-		if (!isPaperReady) {
-			console.log("PAPER ISN'T LOADED");
-			return () => {};
-		}
-
-		console.log("1 --> PAPERJS LOADED! CurrentModel: ", currentModel);
-
-		setParamsForConsole(currentModel.params);
+	/**
+	 * Called by the PaperStage when paper is installed and a PaperScope object is available
+	 * */
+	const onStageReady = (paperScope: paper.PaperScope) => {
+		// console.log("STAGE READY! ", paperScope);
 		const params = parseParams(currentModel.params);
 
 		const options = {
@@ -98,40 +79,44 @@ const UI = () => {
 			color: artColor,
 		};
 
-		// if (stageSize) { resize(stageSize); }
-		reset();
-		initModel(currentModel.model);
+		initModel(currentModel.model, paperScope);
 		configure(options);
 		draw(params, scaleCtrl);
 
 		if (!initialized) {
 			setInitialized(true);
 		}
-	}, [isPaperReady, stageSize]);
+	};
 
-	// ......................................................
-	// Shape modifier controls changed
+	/**
+	 * Called by the PaperStage when the canvas is resized
+	 * */
+	const onStageResize = (view: paper.View) => {
+		// console.log("STAGE RESIZED! ", view);
+		const params = parseParams(currentModel.params);
+		draw(params, scaleCtrl);
+	};
 
+	/**
+	 * Update and parse the params when user input is received on the console
+	 * */
 	useEffect(() => {
-		if (!isPaperReady) {
-			console.log("PAPER ISN'T LOADED");
+		// console.log("2 --> Console Input Received! Checking: ");
+		if (!initialized) {
 			return () => {};
 		}
 
-		// console.log("1 --> Console Input! CurrentModel: ", artColor);
-
 		const params = parseParams(currentModel.params);
-
-		// if (stageSize) { resize(stageSize); }
-		reset();
 		draw(params, scaleCtrl);
-	}, [paramsForConsole]);
+	}, [consoleParams]);
 
-	// ......................................................
-	// Color settings changed
 
+	/**
+	 * Update the model when new art settings are received
+	 * */
 	useEffect(() => {
-		if (!isPaperReady) {
+		// console.log("3 --> Shape Settings Updated! Checking: ");
+		if (!initialized) {
 			console.log("PAPER ISN'T LOADED");
 			return () => {};
 		}
@@ -143,33 +128,33 @@ const UI = () => {
 			color: artColor,
 		};
 
-		console.log("color: ", artColor);
-
-		reset();
+		// reset(paperScope);
 		configure(options);
 		draw(params, scaleCtrl);
 	}, [hasFill, artColor]);
 
-	// .....................................................
 
-	useEffect(() => {
-		if (!isPaperReady) {
-			console.log("PAPER ISN'T LOADED");
-			return () => {};
-		}
 
-		if (stageSize) {
-			resize(stageSize);
-		}
-	}, [stageSize]);
+	// -------------------------------------------------------------------------------------------------------
+	// MEDIA QUERIES
+
+	const isDesktop = useMediaQuery("(min-width: 1024px)");
+	const isLandscape = useMediaQuery("(orientation: landscape)");
+	const isPortrait = useMediaQuery("(orientation: portrait)");
 
 	// -------------------------------------------------------------------------------------------------------
 	// HANDLERS
 
+	/**
+	 * Handler for the console
+	 * */
 	const handleParamCtrlInputForModel = (updatedParams: any) => {
-		setParamsForConsole(updatedParams);
+		setConsoleParams(updatedParams);
 	};
 
+	/**
+	 * Handler for the gallery save function
+	 * */
 	const saveShape = (event: SyntheticEvent) => {
 		// ...
 		event.preventDefault();
@@ -193,13 +178,6 @@ const UI = () => {
 
 		setShapeCollection(collection);
 	};
-
-	// -------------------------------------------------------------------------------------------------------
-	// MEDIA QUERIES
-
-	const isDesktop = useMediaQuery("(min-width: 1024px)");
-	const isLandscape = useMediaQuery("(orientation: landscape)");
-	const isPortrait = useMediaQuery("(orientation: portrait)");
 
 	// -------------------------------------------------------------------------------------------------------
 	// STYLES
@@ -245,10 +223,11 @@ const UI = () => {
 	// BLOCKS
 
 	const consoleSwitch = (model: Model, layout: string, mode: string) => {
+		console.log("switch the console!");
 		const Console = model.console;
 		return (
 			<Console
-				params={paramsForConsole}
+				params={currentModel.params}
 				inputHandler={handleParamCtrlInputForModel}
 				layout={layout}
 				mode={mode}
@@ -266,6 +245,28 @@ const UI = () => {
 				}}
 			>
 				<Title c={dark}>Polystar</Title>
+			</div>
+		);
+	};
+
+	const saveButton = () => {
+		return (
+			<div
+				style={{
+					position: "absolute",
+					bottom: "0px",
+					left: "0px",
+					width: "100%",
+				}}
+			>
+				<>
+					<Flex justify="flex-end">
+						<Button style={{}} bg={dark} m="1rem" variant="filled" onClick={saveShape}>
+							Save
+						</Button>
+					</Flex>
+					<Gallery />
+				</>
 			</div>
 		);
 	};
@@ -304,45 +305,99 @@ const UI = () => {
 		);
 	};
 
-	const stage = () => {
-		return (
-			<div style={stageStyle}>
-				{/*<PaperStage onPaperLoad={setIsPaperLoaded} onResize={setStageSize} />*/}
-				<div style={{ width: "100%", height: "100%" }}>
-					<canvas style={{ position: "relative", width: "100%", height: "100%" }} ref={canvasRef}></canvas>
-				</div>
-				{!isLandscape && title()}
-				<div
-					style={{
-						position: "absolute",
-						bottom: "0px",
-						left: "0px",
-						width: "100%",
-					}}
-				>
-					{isLandscape && (
-						<>
-							<Flex justify="flex-end">
-								<Button style={{}} bg={dark} m="1rem" variant="filled" onClick={saveShape}>
-									Save
-								</Button>
-							</Flex>
-							<Gallery />
-						</>
-					)}
-				</div>
-			</div>
-		);
-	};
+	// const stage = () => {
+	// 	return (
+	// 		<div style={stageStyle}>
+	// 			<div style={{ width: "100%", height: "100%" }}>
+	// 				<canvas style={{ position: "relative", width: "100%", height: "100%" }} ref={canvasRef}></canvas>
+	// 			</div>
+	// 			<div
+	// 				style={{
+	// 					position: "absolute",
+	// 					top: "1rem",
+	// 					left: "1rem",
+	// 					width: "100%",
+	// 				}}
+	// 			>
+	// 				{!isLandscape && title()}
+	// 			</div>
+	// 			<div
+	// 				style={{
+	// 					position: "absolute",
+	// 					bottom: "0px",
+	// 					left: "0px",
+	// 					width: "100%",
+	// 				}}
+	// 			>
+	// 				{/*{isLandscape && saveButton()}*/}
+	// 			</div>
+	// 		</div>
+	// 	);
+	// };
 
 	// -------------------------------------------------------------------------------------------------------
+
+	// return (
+	// 	<div>
+	// 		<h1>DEBUGGING...</h1>{" "}
+	// 		<Stage orientation={isLandscape ? "LANDSCAPE" : "PORTRAIT"} style={stageStyle} onReady={onStageReady} onResize={onStageResize}>
+	// 			{!isLandscape && title()}
+	// 			{isLandscape && saveButton()}
+	// 		</Stage>
+	// 	</div>
+	// );
+
+	// return (
+	// 	<div style={containerStyle}>
+	// 		<div style={frameStyle}>
+	// 			{isLandscape ? (
+	// 				<Flex direction="row">
+	// 					<div style={{ position: "relative", minWidth: "300px", maxWidth: "25%", overflowY: "auto" }}>
+	// 						{panel()}
+	// 					</div>
+	// 					<div style={{ position: "relative", minWidth: "250px", flexGrow: "1" }}>
+	// 						<Stage
+	// 							model={currentModel}
+	// 							style={stageStyle}
+	// 							onReady={onStageReady}
+	// 							onResize={onStageResize}
+	// 						>
+	// 							{saveButton()}
+	// 						</Stage>
+	// 					</div>
+	// 				</Flex>
+	// 			) : (
+	// 				<Stack justify="flex-start" align="stretch">
+	// 					<div style={{ position: "relative" }}>
+	// 						<Stage
+	// 							model={currentModel}
+	// 							style={stageStyle}
+	// 							onReady={onStageReady}
+	// 							onResize={onStageResize}
+	// 						>
+	// 							{title()}
+	// 						</Stage>
+	// 					</div>
+	// 					<div style={{ position: "relative", overflowY: "auto" }}>{panel()}</div>
+	// 				</Stack>
+	// 			)}
+	// 		</div>
+	// 	</div>
+	// );
 
 	return (
 		<div style={containerStyle}>
 			<div style={frameStyle}>
 				<Layout orientation={isLandscape ? "LANDSCAPE" : "PORTRAIT"}>
 					{panel()}
-					{stage()}
+					<PaperStage
+						style={stageStyle}
+						onReady={onStageReady}
+						onResize={onStageResize}
+					>
+						{!isLandscape && title()}
+						{isLandscape && saveButton()}
+					</PaperStage>
 				</Layout>
 			</div>
 		</div>

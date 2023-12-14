@@ -30,11 +30,14 @@ class Polystar {
 	}
 
 	public configure(options: any) {
+
 		this._hasFill = options.fill;
 		this._color = new Color(options.color);
 	}
 
-	public draw(params: any) {
+	public draw(position: PointLike, radius: number, params: any) {
+		this._position = convertToHyperPoint(position);
+		this._radius = radius;
 		const {
 			sideCtrl,
 			expansionCtrl,
