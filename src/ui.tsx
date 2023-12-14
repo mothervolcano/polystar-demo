@@ -7,7 +7,7 @@ import { useMediaQuery } from "@mantine/hooks";
 // .......................................................
 
 import { Model, ParamSet } from "./polystar";
-import { reset, resize, initModel, configure, draw, extractPath } from "./stage";
+import { initModel, configure, draw, extractPath } from "./stage";
 import { convertPathToSVG } from "./polystar/util/pathUtils";
 import useModel from "./hooks/useModel";
 import ShapeContext from "./ShapeContext";
