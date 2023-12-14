@@ -1,55 +1,55 @@
-import { useRef, useEffect, useLayoutEffect, useState, RefObject } from "react";
+import { useRef, useEffect, ReactNode } from "react";
 
-import { PaperScope } from "paper";
-import useResizeObserver from "@react-hook/resize-observer";
+import useSize from "../hooks/useSize";
+import usePaperScope from "../hooks/usePaperScope";
 
-export const paperScope = new PaperScope();
+interface StageProps {
+	style: object;
+	onResize: Function;
+	onReady: Function;
+	children: ReactNode;
+}
 
-const useSize = (target: RefObject<HTMLElement>): DOMRect | undefined => {
-	const [size, setSize] = useState<DOMRect>();
+const PaperStage = ({ style, onResize, onReady, children }: StageProps) => {
+	const stageRef = useRef(null);
+	const stageSize = useSize(stageRef);
+	const [canvasRef, paperScope, paperViewSize] = usePaperScope(stageSize);
 
-	useLayoutEffect(() => {
-		if (!target || !target.current) {
-			throw new Error(`ERROR @useSize hook: element not found`);
-		}
-		setSize(target.current.getBoundingClientRect());
-	}, [target]);
+	// console.log("Rendering Stage: ", canvasSize);
 
-	useResizeObserver(target, (entry: any) => setSize(entry.contentRect));
-
-	return size;
-};
-
-const PaperStage = ({ onPaperLoad, onResize }: any) => {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const size = useSize(containerRef);
-
+	/**
+	 *
+	 * */
 	useEffect(() => {
-		if (canvasRef.current !== null) {
-			paperScope.install(window);
-			paperScope.setup(canvasRef.current);
-			onPaperLoad(true);
-		} else {
-			//TODO: error message
-		}
-	}, []);
+		// console.log("onReady: ", paperScope?.view);
+		onReady(paperScope);
+	}, [paperScope]);
 
+	/**
+	 *
+	 * */
 	useEffect(() => {
-		// Update canvas size based on parent size
-		if (canvasRef.current && size) {
-			canvasRef.current.width = size.width;
-			canvasRef.current.height = size.height;
-			onResize({ width: size.width, height: size.height });
+		// console.log("onResize: ", paperScope?.view);
+		if (paperScope?.view) {
+			onResize(paperViewSize);
 		}
-	}, [size]);
+	}, [paperViewSize]);
 
-	const canvasWidth = size ? `${size.width}px` : "100%";
-	const canvasHeight = size ? `${size.height}px` : "100%";
+	const canvasWidth = stageSize ? `${stageSize.width}px` : "100%";
+	const canvasHeight = stageSize ? `${stageSize.height}px` : "100%";
+
+	// const canvasWidth = "100%";
+	// const canvasHeight = "100%";
 
 	return (
-		<div ref={containerRef} style={{ width: "100%", height: "100%" }}>
-			<canvas style={{ position: "relative", width: canvasWidth, height: canvasHeight }} ref={canvasRef}></canvas>
+		<div style={style}>
+			<div ref={stageRef} style={{ width: "100%", height: "100%" }}>
+				<canvas
+					ref={canvasRef}
+					style={{ position: "relative", width: canvasWidth, height: canvasHeight }}
+				></canvas>
+			</div>
+			{children}
 		</div>
 	);
 };
