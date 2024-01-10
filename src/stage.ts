@@ -1,5 +1,3 @@
-import { Layer } from "paper";
-
 let view: any;
 let layer: any;
 
@@ -7,8 +5,6 @@ let origin: any;
 let radius: any;
 
 let model: any;
-
-let paperScope: any;
 
 // ----------------------------------------------------------
 // AUX
@@ -38,33 +34,14 @@ function calculateRadius(width: number, height: number) {
   return height * 0.60 * 0.5;
 }
 
-// export function reset(paperScope: paper.PaperScope) {
-//   console.log("! RESET STAGE", paperScope);
-//   paperScope.project.clear();
-//   view = paperScope.project.view;
-//   layer = new Layer();
-//   view.onResize = () => {
-//     layer.position = view.center;
-//   }
-// }
-
-// export function resize(width: number | null | undefined, height: number | null | undefined) {
-//   console.log("! RESIZE STAGE");
-//   if (view && width && height) {
-//     view.viewSize = [width, height];
-//   }
-// }
 
 // Note: initializes the requested model and creates a state and or context that is used by the other methods: generate, regenerate and redraw;
-export function initModel(selectedModel: any, _paperScope: paper.PaperScope) {
+export function initModel(selectedModel: any, paperScope: paper.PaperScope) {
   // console.log("! INIT STAGE");
-  paperScope = _paperScope;
   paperScope.project.clear();
   view = paperScope.project.view;
   layer = new paperScope.Layer();
-  // view.onResize = () => {
-  //   layer.position = view.center;
-  // }
+
 
   origin = calculateOrigin(view.size.width, view.size.height);
   radius = calculateRadius(view.size.width, view.size.height);
@@ -74,7 +51,6 @@ export function initModel(selectedModel: any, _paperScope: paper.PaperScope) {
 // NOTE: create the model based on the starting parameters
 export function configure(options: { fill: boolean; color: string }) {
   // console.log("! CONFIGURE STAGE");
-
   model.configure(options);
 }
 
@@ -82,11 +58,7 @@ export function configure(options: { fill: boolean; color: string }) {
 export function draw(params: any, scaleCtrl: number) {
   // console.log("! DRAW STAGE");
   // const { sideCtrl, lengthCtrl, curveCtrl } = params;
-  // if (layer) { layer.removeChildren()}
-
-  paperScope.project.clear();
-  view = paperScope.project.view;
-  layer = new paperScope.Layer();
+  if (layer) { layer.removeChildren()}
 
   origin = calculateOrigin(view.size.width, view.size.height);
   radius = calculateRadius(view.size.width, view.size.height);
