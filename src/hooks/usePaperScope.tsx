@@ -9,17 +9,16 @@ const paperScope = new PaperScope();
 function usePaperScope(): [RefObject<HTMLCanvasElement>, paper.PaperScope] {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	paperScope.install(window);
 
 	/**
-	 * Set up the Paper Project with a canvas element
+	 * Set up the Paper Project with a canvas element and ensure there's always a single project
 	 * */
 	useEffect(() => {
-
-		paperScope.install(window);
-
 		if (canvasRef.current) {
-			if (paperScope.projects.length === 0 ) {
-				paperScope.setup(canvasRef.current);
+			paperScope.setup(canvasRef.current);
+			if (paperScope.projects.length > 1 ) {
+				paperScope.projects = paperScope.projects.concat(paperScope.projects[0]);
 			}
 		}
 	}, [canvasRef.current]);

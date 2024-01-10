@@ -21,7 +21,7 @@ const PaperStage = ({ style, onResize, onReady, children }: StageProps) => {
 	 * Execute the callback to initialize the drawing
 	 * */
 	useEffect(() => {
-		// console.log("onReady: ", paperScope?.view);
+		console.log("onReady: ", paperScope?.view);
 		onReady(paperScope);
 	}, [canvasRef.current]);
 
