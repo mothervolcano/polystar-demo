@@ -1,4 +1,4 @@
-import { useRef, useEffect, ReactNode } from "react";
+import { useRef, useEffect, ReactNode, RefObject } from "react";
 
 import useSize from "../hooks/useSize";
 import usePaperScope from "../hooks/usePaperScope";
@@ -13,27 +13,28 @@ interface StageProps {
 const PaperStage = ({ style, onResize, onReady, children }: StageProps) => {
 	const stageRef = useRef(null);
 	const stageSize = useSize(stageRef);
-	const [canvasRef, paperScope, paperViewSize] = usePaperScope(stageSize);
+	const [canvasRef, paperScope] = usePaperScope();
 
 	// console.log("Rendering Stage: ", canvasSize);
 
 	/**
-	 *
+	 * Execute the callback to initialize the drawing
 	 * */
 	useEffect(() => {
 		// console.log("onReady: ", paperScope?.view);
 		onReady(paperScope);
-	}, [paperScope]);
+	}, [canvasRef.current]);
 
 	/**
-	 *
+	 * Execute the callback to redraw/adjust to the updated canvas size
 	 * */
 	useEffect(() => {
-		// console.log("onResize: ", paperScope?.view);
-		if (paperScope?.view) {
-			onResize(paperViewSize);
+		if (canvasRef.current && stageSize) {
+			paperScope.view.viewSize.width = stageSize.width;
+			paperScope.view.viewSize.height = stageSize.height;
+			onResize(paperScope.view);
 		}
-	}, [paperViewSize]);
+	}, [stageSize]);
 
 	const canvasWidth = stageSize ? `${stageSize.width}px` : "100%";
 	const canvasHeight = stageSize ? `${stageSize.height}px` : "100%";

@@ -8,6 +8,8 @@ let radius: any;
 
 let model: any;
 
+let paperScope: any;
+
 // ----------------------------------------------------------
 // AUX
 
@@ -54,8 +56,9 @@ function calculateRadius(width: number, height: number) {
 // }
 
 // Note: initializes the requested model and creates a state and or context that is used by the other methods: generate, regenerate and redraw;
-export function initModel(selectedModel: any, paperScope: paper.PaperScope) {
+export function initModel(selectedModel: any, _paperScope: paper.PaperScope) {
   // console.log("! INIT STAGE");
+  paperScope = _paperScope;
   paperScope.project.clear();
   view = paperScope.project.view;
   layer = new paperScope.Layer();
@@ -64,7 +67,7 @@ export function initModel(selectedModel: any, paperScope: paper.PaperScope) {
   // }
 
   origin = calculateOrigin(view.size.width, view.size.height);
-  const radius = calculateRadius(view.size.width, view.size.height);
+  radius = calculateRadius(view.size.width, view.size.height);
   model = new selectedModel(radius, origin);
 }
 
@@ -79,7 +82,11 @@ export function configure(options: { fill: boolean; color: string }) {
 export function draw(params: any, scaleCtrl: number) {
   // console.log("! DRAW STAGE");
   // const { sideCtrl, lengthCtrl, curveCtrl } = params;
-  if (layer) { layer.removeChildren()}
+  // if (layer) { layer.removeChildren()}
+
+  paperScope.project.clear();
+  view = paperScope.project.view;
+  layer = new paperScope.Layer();
 
   origin = calculateOrigin(view.size.width, view.size.height);
   radius = calculateRadius(view.size.width, view.size.height);

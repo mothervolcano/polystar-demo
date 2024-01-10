@@ -1,4 +1,4 @@
-import { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { SyntheticEvent, useContext, useEffect, useRef, useState } from "react";
 
 import { Container, Flex, Stack, Title, Text, DEFAULT_THEME, Space, ColorPicker, Button, Divider } from "@mantine/core";
 
@@ -14,6 +14,7 @@ import ShapeContext from "./ShapeContext";
 
 import PaperStage from "./components/PaperStage";
 import Gallery from "./components/Gallery";
+
 
 // --------------------------------------------------------------
 // HELPERS
@@ -97,7 +98,7 @@ function App() {
   useEffect(() => {
     // console.log("2 --> Console Input Received! Checking: ");
     if (!initialized) {
-      return () => {};
+      return;
     }
 
     const params = parseParams(currentModel.params);
@@ -111,7 +112,7 @@ function App() {
     // console.log("3 --> Shape Settings Updated! Checking: ");
     if (!initialized) {
       console.log("PAPER ISN'T LOADED");
-      return () => {};
+      return;
     }
 
     const params = parseParams(currentModel.params);
