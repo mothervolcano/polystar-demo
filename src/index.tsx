@@ -6,13 +6,17 @@ import reportWebVitals from "./reportWebVitals";
 import "@mantine/core/styles.css";
 import { MantineProvider, createTheme } from "@mantine/core";
 
+import { ShapeContextProvider } from './ShapeContext';
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 root.render(
   <React.StrictMode>
     <MantineProvider>
-      <App />
+      <ShapeContextProvider>
+        <App />
+      </ShapeContextProvider>
     </MantineProvider>
   </React.StrictMode>,
 );
